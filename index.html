@@ -2,164 +2,1449 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>UiX Dashboard · People Analytics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capital Humano Dashboard | UiX 2026</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
 <style>
-:root{
-  --primary:#7c5ff5;--pl:#a48bf8;--pd:#5b3ed4;
-  --green:#4cd964;--gd:#2ab84a;
-  --red:#ff4757;--orange:#ffa502;--blue:#2196f3;
-  --bg:#fff;--bg2:#f8f7ff;--bg3:#f0eeff;
-  --border:#e8e4ff;--text:#1a1a2e;--t2:#5a5a7a;--t3:#9999bb;
-  --sh:0 2px 12px rgba(124,95,245,.12);--sh2:0 8px 32px rgba(124,95,245,.2);
-  --r:12px;--rs:8px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#fff;color:var(--text);font-size:14px;overflow-x:hidden}
-.hdr{background:linear-gradient(135deg,var(--pd),var(--primary) 60%,var(--pl));padding:18px 32px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 20px rgba(124,95,245,.3)}
-.logo{width:44px;height:44px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff}
-.hdr-t h1{color:#fff;font-size:19px;font-weight:700}
-.hdr-t p{color:rgba(255,255,255,.72);font-size:12px;margin-top:1px}
-.hdr-badge{margin-left:auto;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600}
+  :root {
+    --bg: #0e0e1a;
+    --bg2: #13131f;
+    --card: #1a1a2e;
+    --card2: #1e1e35;
+    --border: rgba(130,80,255,0.18);
+    --purple: #8250ff;
+    --purple2: #a07af0;
+    --green: #5fff8c;
+    --cyan: #3de8c8;
+    --pink: #ff5fc8;
+    --orange: #ff9048;
+    --yellow: #ffe455;
+    --text: #f0f0ff;
+    --text2: #a0a0c0;
+    --text3: #6868a0;
+    --gradient1: linear-gradient(135deg,#8250ff,#3de8c8);
+    --gradient2: linear-gradient(135deg,#8250ff,#ff5fc8);
+    --gradient3: linear-gradient(135deg,#ff9048,#ffe455);
+    --shadow: 0 8px 32px rgba(130,80,255,0.18);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; overflow-x:hidden; }
 
-.fb{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);padding:8px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.fl{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px}
-.fbtn{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--t2);cursor:pointer;font-weight:600}
-.fbtn.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+  /* NAV */
+  nav { position:sticky; top:0; z-index:100; background:rgba(14,14,26,0.95); backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;
+    padding:0 2rem; height:64px; }
+  .nav-logo { display:flex; align-items:center; gap:12px; }
+  .nav-logo img { height:36px; }
+  .nav-title { font-size:1.1rem; font-weight:700; background:var(--gradient1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .nav-links { display:flex; gap:8px; }
+  .nav-links a { color:var(--text2); text-decoration:none; font-size:.85rem; font-weight:500; padding:6px 14px;
+    border-radius:8px; transition:all .2s; }
+  .nav-links a:hover, .nav-links a.active { background:rgba(130,80,255,0.15); color:var(--purple2); }
+  .nav-right { display:flex; align-items:center; gap:12px; }
+  .live-badge { display:flex; align-items:center; gap:6px; font-size:.78rem; color:var(--green); font-weight:600;
+    background:rgba(95,255,140,0.1); padding:5px 12px; border-radius:20px; border:1px solid rgba(95,255,140,0.25); }
+  .live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(0.7)} }
+  .upload-btn { background:var(--gradient1); color:#fff; border:none; padding:8px 18px; border-radius:10px;
+    font-size:.82rem; font-weight:600; cursor:pointer; transition:all .2s; }
+  .upload-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(130,80,255,0.4); }
 
-.tnav{display:flex;background:var(--bg2);border-bottom:2px solid var(--border);padding:0 32px;gap:2px;overflow-x:auto}
-.tbtn{padding:13px 20px;border:none;background:transparent;color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
-.tbtn.on{color:var(--primary);border-bottom-color:var(--primary)}
+  /* HERO */
+  .hero { padding:3rem 2rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:2rem; }
+  .hero-text h1 { font-size:2.4rem; font-weight:900; line-height:1.1; }
+  .hero-text h1 span { background:var(--gradient1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero-text p { color:var(--text2); margin-top:.6rem; font-size:.95rem; }
+  .hero-date { font-size:.82rem; color:var(--text3); margin-top:.4rem; }
+  .hero-kpis { display:flex; gap:1rem; flex-wrap:wrap; }
 
-.tc{display:none;padding:24px 32px;animation:fi 0.22s ease}
-.tc.on{display:block}
-@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  /* KPI CARDS */
+  .kpi-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.2rem 1.6rem;
+    min-width:160px; position:relative; overflow:hidden; transition:transform .2s; }
+  .kpi-card:hover { transform:translateY(-3px); }
+  .kpi-card::before { content:''; position:absolute; top:-30px; right:-30px; width:80px; height:80px;
+    border-radius:50%; opacity:.12; }
+  .kpi-card.blue::before { background:#3de8c8; }
+  .kpi-card.purple::before { background:#8250ff; }
+  .kpi-card.pink::before { background:#ff5fc8; }
+  .kpi-card.orange::before { background:#ff9048; }
+  .kpi-label { font-size:.75rem; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; font-weight:600; }
+  .kpi-value { font-size:2.2rem; font-weight:900; margin-top:.2rem; line-height:1; }
+  .kpi-value.blue { color:var(--cyan); }
+  .kpi-value.purple { color:var(--purple2); }
+  .kpi-value.pink { color:var(--pink); }
+  .kpi-value.orange { color:var(--orange); }
+  .kpi-sub { font-size:.78rem; color:var(--text3); margin-top:.3rem; }
+  .kpi-trend { font-size:.78rem; font-weight:600; }
+  .kpi-trend.up { color:var(--green); }
+  .kpi-trend.down { color:var(--pink); }
 
-.st{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;padding-bottom:7px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
-.sticon{width:26px;height:26px;background:var(--primary);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px}
+  /* SECTION */
+  section { padding:1.5rem 2rem; }
+  .section-title { font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:1.2rem;
+    display:flex; align-items:center; gap:10px; }
+  .section-title::before { content:''; display:block; width:4px; height:20px; border-radius:2px; background:var(--gradient1); }
 
-.kg4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px}
-.kc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;position:relative}
-.kc.prim{background:linear-gradient(135deg,var(--pd),var(--primary));border-color:transparent}
-.kc.prim .kl,.kc.prim .kv,.kc.prim .ks{color:#fff!important}
-.kc.grn{border-left:4px solid var(--green)}
-.kc.pur{border-left:4px solid var(--primary)}
-.kc.org{border-left:4px solid var(--orange)}
-.kl{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;margin-bottom:5px}
-.kv{font-size:26px;font-weight:800;color:var(--text);line-height:1}
-.ks{font-size:11px;color:var(--t3);margin-top:4px}
+  /* GRID LAYOUTS */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
+  .grid-auto { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.2rem; }
 
-.dg{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:16px}
-.dc{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:14px}
-.dct{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;margin-bottom:8px}
-.cw canvas{max-height:250px}
+  /* CHART CARDS */
+  .chart-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:1.4rem; }
+  .chart-card.tall { min-height:360px; }
+  .chart-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; }
+  .chart-title { font-size:.9rem; font-weight:700; color:var(--text); }
+  .chart-badge { font-size:.72rem; padding:3px 10px; border-radius:20px; font-weight:600; }
+  .chart-badge.green { background:rgba(95,255,140,0.1); color:var(--green); border:1px solid rgba(95,255,140,0.2); }
+  .chart-badge.blue { background:rgba(61,232,200,0.1); color:var(--cyan); border:1px solid rgba(61,232,200,0.2); }
+  .chart-badge.purple { background:rgba(130,80,255,0.1); color:var(--purple2); border:1px solid rgba(130,80,255,0.2); }
+  .chart-badge.pink { background:rgba(255,95,200,0.1); color:var(--pink); border:1px solid rgba(255,95,200,0.2); }
+  .chart-wrap { position:relative; height:220px; }
+  .chart-wrap.md { height:260px; }
+  .chart-wrap.lg { height:320px; }
+  .chart-wrap.xl { height:380px; }
+
+  /* TABS */
+  .tabs { display:flex; gap:6px; margin-bottom:1rem; }
+  .tab { padding:6px 14px; border-radius:8px; font-size:.8rem; font-weight:600; cursor:pointer;
+    color:var(--text3); border:1px solid transparent; transition:all .2s; }
+  .tab.active { background:rgba(130,80,255,0.15); color:var(--purple2); border-color:rgba(130,80,255,0.3); }
+  .tab:hover { color:var(--text2); background:rgba(255,255,255,0.04); }
+
+  /* TABLE */
+  .table-wrap { overflow-x:auto; border-radius:12px; }
+  table { width:100%; border-collapse:collapse; font-size:.82rem; }
+  th { background:rgba(130,80,255,0.08); color:var(--text3); font-weight:600; text-transform:uppercase;
+    letter-spacing:.06em; font-size:.72rem; padding:.7rem 1rem; text-align:left; border-bottom:1px solid var(--border); }
+  td { padding:.65rem 1rem; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--text2); }
+  tr:hover td { background:rgba(130,80,255,0.05); color:var(--text); }
+  .badge { display:inline-block; padding:2px 8px; border-radius:6px; font-size:.72rem; font-weight:600; }
+  .badge-green { background:rgba(95,255,140,0.12); color:var(--green); }
+  .badge-red { background:rgba(255,95,200,0.12); color:var(--pink); }
+  .badge-blue { background:rgba(61,232,200,0.12); color:var(--cyan); }
+  .badge-purple { background:rgba(130,80,255,0.15); color:var(--purple2); }
+  .badge-orange { background:rgba(255,144,72,0.12); color:var(--orange); }
+
+  /* PROGRESS BARS */
+  .prog-row { display:flex; align-items:center; gap:10px; margin-bottom:.7rem; }
+  .prog-label { font-size:.78rem; color:var(--text2); min-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .prog-bar-wrap { flex:1; background:rgba(255,255,255,0.06); border-radius:4px; height:6px; overflow:hidden; }
+  .prog-bar { height:100%; border-radius:4px; transition:width .8s ease; }
+  .prog-val { font-size:.78rem; font-weight:700; color:var(--text2); min-width:28px; text-align:right; }
+
+  /* ORG CHART */
+  #orgChart { width:100%; overflow-x:auto; }
+  .org-node { display:inline-flex; flex-direction:column; align-items:center; }
+  .org-box { background:var(--card2); border:1.5px solid var(--border); border-radius:12px; padding:.6rem 1rem;
+    text-align:center; min-width:160px; max-width:200px; cursor:pointer; transition:all .2s; }
+  .org-box:hover, .org-box.selected { border-color:var(--purple); background:rgba(130,80,255,0.12); }
+  .org-box.level0 { border-color:var(--purple); background:rgba(130,80,255,0.15); }
+  .org-box.level1 { border-color:rgba(61,232,200,0.4); }
+  .org-box.level2 { border-color:rgba(255,95,200,0.3); }
+  .org-name { font-size:.72rem; font-weight:700; color:var(--text); }
+  .org-count { font-size:.68rem; color:var(--text3); margin-top:2px; }
+  .org-total { font-size:.78rem; font-weight:700; color:var(--purple2); }
+  .org-children { display:flex; gap:10px; margin-top:16px; align-items:flex-start; position:relative; }
+  .org-children::before { content:''; position:absolute; top:-16px; left:50%; width:1px; height:16px; background:var(--border); }
+
+  /* METRICS ROW */
+  .metric-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .metric-mini { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:.9rem 1.2rem;
+    flex:1; min-width:120px; }
+  .metric-mini-label { font-size:.7rem; color:var(--text3); font-weight:600; text-transform:uppercase; letter-spacing:.07em; }
+  .metric-mini-val { font-size:1.6rem; font-weight:900; margin-top:.2rem; }
+
+  /* DONUT LEGEND */
+  .donut-legend { display:flex; flex-direction:column; gap:.5rem; margin-top:.8rem; }
+  .donut-legend-item { display:flex; align-items:center; gap:.6rem; font-size:.78rem; color:var(--text2); }
+  .donut-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+  /* DIVIDER */
+  .divider { height:1px; background:var(--border); margin:0 2rem; }
+
+  /* GENDER SPLIT */
+  .gender-split { display:flex; height:12px; border-radius:8px; overflow:hidden; margin:10px 0; }
+  .gender-f { background:var(--pink); transition:width .8s ease; }
+  .gender-m { background:var(--cyan); transition:width .8s ease; }
+  .gender-labels { display:flex; justify-content:space-between; font-size:.75rem; color:var(--text3); }
+
+  /* UPLOAD PANEL */
+  .upload-panel { display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px);
+    align-items:center; justify-content:center; }
+  .upload-panel.open { display:flex; }
+  .upload-modal { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:2rem;
+    max-width:480px; width:90%; }
+  .upload-modal h3 { font-size:1.2rem; font-weight:800; margin-bottom:.5rem; }
+  .upload-modal p { color:var(--text2); font-size:.85rem; margin-bottom:1.2rem; }
+  .drop-zone { border:2px dashed var(--border); border-radius:16px; padding:2.5rem; text-align:center;
+    cursor:pointer; transition:all .2s; }
+  .drop-zone:hover, .drop-zone.dragover { border-color:var(--purple); background:rgba(130,80,255,0.08); }
+  .drop-zone-icon { font-size:2.5rem; margin-bottom:.5rem; }
+  .drop-zone p { color:var(--text3); font-size:.85rem; margin-bottom:0; }
+  .drop-zone span { color:var(--purple2); font-weight:600; }
+  .modal-close { position:absolute; top:1rem; right:1rem; cursor:pointer; color:var(--text3); font-size:1.3rem;
+    background:none; border:none; }
+  .modal-actions { display:flex; gap:.7rem; margin-top:1.2rem; justify-content:flex-end; }
+  .btn-cancel { background:rgba(255,255,255,0.06); color:var(--text2); border:1px solid var(--border); padding:8px 18px;
+    border-radius:10px; cursor:pointer; font-size:.85rem; font-weight:600; }
+  .status-msg { font-size:.82rem; margin-top:.8rem; padding:.6rem 1rem; border-radius:8px; display:none; }
+  .status-msg.ok { background:rgba(95,255,140,0.1); color:var(--green); border:1px solid rgba(95,255,140,0.2); display:block; }
+  .status-msg.err { background:rgba(255,95,200,0.1); color:var(--pink); border:1px solid rgba(255,95,200,0.2); display:block; }
+
+  /* RESPONSIVE */
+  @media(max-width:900px) {
+    .grid-3,.grid-4 { grid-template-columns:1fr 1fr; }
+    .hero { flex-direction:column; }
+    .nav-links { display:none; }
+  }
+  @media(max-width:600px) {
+    .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
+    .hero h1 { font-size:1.8rem; }
+    section { padding:1rem; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:rgba(130,80,255,0.3); border-radius:3px; }
+
+  /* TOOLTIP */
+  .tooltip-custom { position:absolute; background:rgba(20,20,40,0.95); border:1px solid var(--border);
+    border-radius:8px; padding:6px 10px; font-size:.75rem; color:var(--text); pointer-events:none;
+    z-index:999; white-space:nowrap; }
+
+  /* ROTACION GAUGE */
+  .gauge-wrap { position:relative; width:160px; height:80px; margin:0 auto; }
+
+  /* EMPLOYEE LIST */
+  .emp-search { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    border-radius:10px; padding:.6rem 1rem; color:var(--text); font-size:.85rem; outline:none; margin-bottom:1rem; }
+  .emp-search::placeholder { color:var(--text3); }
+  .emp-search:focus { border-color:var(--purple); }
+
+  /* ORG SVG */
+  .org-svg-wrap { width:100%; overflow-x:auto; }
+  #org-svg { display:block; }
+
+  /* SPARKLINE INLINE */
+  .sparkline-wrap { height:40px; }
 </style>
 </head>
 <body>
 
-<div class="hdr">
-  <div class="logo">U</div>
-  <div class="hdr-t">
-    <h1>UiX People Analytics</h1>
-    <p>Dashboard de Capital Humano · <span id="current-month">MARZO 2026</span></p>
-  </div>
-  <div class="hdr-badge">HC Real: <strong id="header-hc">—</strong></div>
-</div>
-
-<div class="fb">
-  <span class="fl">AÑO</span>
-  <button class="fbtn">2024</button>
-  <button class="fbtn">2025</button>
-  <button class="fbtn on">2026</button>
-</div>
-
-<div class="tnav">
-  <button class="tbtn on" onclick="switchTab('resumen',this)">📊 Resumen</button>
-  <button class="tbtn" onclick="switchTab('movimiento',this)">📈 Movimiento</button>
-  <button class="tbtn" onclick="switchTab('rotacion',this)">🔄 Rotación</button>
-  <button class="tbtn" onclick="switchTab('organigrama',this)">🏢 Organigrama</button>
-  <button class="tbtn" onclick="switchTab('proyectos',this)">📁 Proyectos</button>
-  <button class="tbtn" onclick="switchTab('headcount',this)">👥 Head Count</button>
-</div>
-
-<div class="tc on" id="tab-resumen">
-  <div class="st"><div class="sticon">📌</div>KPIs Principales · UiX</div>
-  <div class="kg4">
-    <div class="kc prim"><div class="kl">HC Real</div><div class="kv" id="res-hc">—</div><div class="ks">personal activo</div></div>
-    <div class="kc grn"><div class="kl">Cobertura</div><div class="kv" id="res-cob">—</div><div class="ks">vs autorizado</div></div>
-    <div class="kc pur"><div class="kl">Antigüedad Prom.</div><div class="kv" id="res-ant">—</div><div class="ks">promedio años</div></div>
-    <div class="kc org"><div class="kl">Rotación UiX</div><div class="kv" id="res-rot">—</div><div class="ks">acumulado anual</div></div>
-  </div>
-
-  <div class="st"><div class="sticon">🚻</div>Demografía de Género</div>
-  <div class="dg">
-    <div class="dc">
-        <div class="dct">Distribución H/M</div>
-        <div class="cw"><canvas id="c-gender"></canvas></div>
+<!-- UPLOAD PANEL -->
+<div class="upload-panel" id="uploadPanel">
+  <div class="upload-modal" style="position:relative;">
+    <button class="modal-close" onclick="closeUpload()">✕</button>
+    <h3>📂 Actualizar Datos</h3>
+    <p>Sube el archivo <strong>HC Oficial 2026.xlsx</strong> para actualizar el dashboard en tiempo real.</p>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="drop-zone-icon">📊</div>
+      <p>Arrastra tu archivo aquí o <span>haz clic para seleccionar</span></p>
+      <p style="margin-top:.4rem;font-size:.75rem;">Solo archivos .xlsx</p>
+    </div>
+    <input type="file" id="fileInput" accept=".xlsx" style="display:none" onchange="handleFile(this)">
+    <div class="status-msg" id="statusMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeUpload()">Cancelar</button>
     </div>
   </div>
 </div>
 
-<div class="tc" id="tab-movimiento"><div class="st">📈 Movimiento de Personal</div></div>
-<div class="tc" id="tab-rotacion"><div class="st">🔄 Análisis de Rotación</div></div>
-<div class="tc" id="tab-organigrama"><div class="st">🏢 Estructura Organizacional</div></div>
-<div class="tc" id="tab-proyectos"><div class="st">📁 Gestión de Proyectos</div></div>
-<div class="tc" id="tab-headcount"><div class="st">👥 Detalle de Headcount</div></div>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <img src="https://www.genspark.ai/api/files/s/9CKDGxvu" alt="UiX">
+    <span class="nav-title">Capital Humano</span>
+  </div>
+  <div class="nav-links">
+    <a href="#resumen" class="active">Resumen</a>
+    <a href="#demograficos">Demográficos</a>
+    <a href="#organigrama">Organigrama</a>
+    <a href="#proyectos">Proyectos</a>
+    <a href="#kpis">KPIs</a>
+    <a href="#directorio">Directorio</a>
+  </div>
+  <div class="nav-right">
+    <div class="live-badge"><span class="live-dot"></span>En vivo</div>
+    <button class="upload-btn" onclick="openUpload()">⬆ Actualizar</button>
+  </div>
+</nav>
 
+<!-- HERO -->
+<div class="hero" id="resumen">
+  <div class="hero-text">
+    <h1>Dashboard <span>Capital Humano</span></h1>
+    <p>Unidad de Negocio UiX — Métricas y análisis de headcount</p>
+    <div class="hero-date" id="heroDate"></div>
+  </div>
+  <div class="hero-kpis" id="heroKpis">
+    <!-- Dynamic -->
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SUMMARY METRICS -->
+<section>
+  <div class="section-title">Indicadores Clave</div>
+  <div class="grid-4" id="kpiGrid"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- DEMOGRAPHICS -->
+<section id="demograficos">
+  <div class="section-title">Datos Demográficos</div>
+  <div class="grid-3">
+    <!-- Gender + Age -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">👥 Distribución por Género</span>
+        <span class="chart-badge purple" id="totalGender">Activos</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:1.5rem;">
+        <div style="position:relative;width:130px;height:130px;flex-shrink:0;">
+          <canvas id="genderChart"></canvas>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="font-size:1.5rem;font-weight:900;" id="genderCenter"></div>
+            <div style="font-size:.65rem;color:var(--text3)">Total</div>
+          </div>
+        </div>
+        <div class="donut-legend" id="genderLegend"></div>
+      </div>
+      <div style="margin-top:1rem;">
+        <div class="gender-labels"><span>♀ Mujeres</span><span>♂ Hombres</span></div>
+        <div class="gender-split">
+          <div class="gender-f" id="genderBarF"></div>
+          <div class="gender-m" id="genderBarM"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generaciones -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">🧬 Generaciones</span>
+        <span class="chart-badge green">4 grupos</span>
+      </div>
+      <div class="chart-wrap" style="height:200px;">
+        <canvas id="genChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Edad -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">🎂 Distribución de Edades</span>
+        <span class="chart-badge blue" id="avgAgeLabel"></span>
+      </div>
+      <div class="chart-wrap" style="height:200px;">
+        <canvas id="ageChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Empleador -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">🏢 Por Empleador</span>
+        <span class="chart-badge purple">4 empleadores</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:1.2rem;">
+        <div style="position:relative;width:130px;height:130px;flex-shrink:0;">
+          <canvas id="empleadorChart"></canvas>
+        </div>
+        <div id="empleadorLegend" class="donut-legend"></div>
+      </div>
+    </div>
+
+    <!-- Nivel UiX -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">⬆ Niveles UiX</span>
+        <span class="chart-badge blue">Activos</span>
+      </div>
+      <div class="chart-wrap" style="height:200px;">
+        <canvas id="nivelChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Ubicación -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">📍 Ubicación</span>
+        <span class="chart-badge green" id="ubicCount"></span>
+      </div>
+      <div id="ubicList" style="overflow-y:auto;max-height:210px;"></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ORGANIGRAMA -->
+<section id="organigrama">
+  <div class="section-title">Organigrama de Formadores</div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title">🌳 Estructura Jerárquica de Formadores</span>
+      <span class="chart-badge purple">Clic en líder para ver equipo</span>
+    </div>
+    <div class="org-svg-wrap">
+      <svg id="org-svg"></svg>
+    </div>
+  </div>
+  <!-- Leader Detail Card -->
+  <div style="margin-top:1.2rem;" id="leaderDetail" class="chart-card" style="display:none;">
+    <div class="chart-header">
+      <span class="chart-title" id="leaderName">Selecciona un Líder</span>
+      <span class="chart-badge purple" id="leaderTotalBadge"></span>
+    </div>
+    <div class="grid-3" id="leaderStats"></div>
+    <div style="margin-top:1rem;">
+      <div class="section-title" style="font-size:.85rem;margin-bottom:.8rem;">Equipo directo</div>
+      <div id="leaderTeamGrid" class="grid-4" style="gap:.8rem;"></div>
+    </div>
+  </div>
+
+  <!-- Persons per Leader Chart -->
+  <div style="margin-top:1.2rem;" class="grid-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">👤 Personas a Cargo por Formador (Directos)</span>
+        <span class="chart-badge blue">Top formadores</span>
+      </div>
+      <div class="chart-wrap md">
+        <canvas id="formadorBarChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">👥 Tamaño Total de Equipo</span>
+        <span class="chart-badge purple">Incl. sub-líderes</span>
+      </div>
+      <div class="chart-wrap md">
+        <canvas id="teamSizeChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROYECTOS -->
+<section id="proyectos">
+  <div class="section-title">Distribución por Proyectos</div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">📋 Headcount por Proyecto</span>
+        <span class="chart-badge green" id="proyCount"></span>
+      </div>
+      <div class="chart-wrap xl">
+        <canvas id="proyectoChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">📊 Detalle por Proyecto</span>
+        <div class="tabs">
+          <div class="tab active" onclick="switchProjTab('activos',this)">Activos</div>
+          <div class="tab" onclick="switchProjTab('bajas',this)">Bajas</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="proyectoTable">
+          <thead><tr><th>Proyecto</th><th>Personas</th><th>%</th></tr></thead>
+          <tbody id="proyectoTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- KPIs -->
+<section id="kpis">
+  <div class="section-title">KPIs de Capital Humano</div>
+
+  <!-- Rotacion -->
+  <div class="grid-3" style="margin-bottom:1.2rem;">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">🔄 Rotación por Año</span>
+        <span class="chart-badge pink">Histórico</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="rotacionChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">📅 Bajas por Mes (Histórico)</span>
+        <span class="chart-badge blue">2024–2026</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="bajasChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">📈 Ingresos por Año</span>
+        <span class="chart-badge green">Crecimiento</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="ingresosChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salary & Tenure -->
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">💰 Distribución Salarial</span>
+        <span class="chart-badge blue">Activos</span>
+      </div>
+      <div class="metric-row" id="salaryMetrics"></div>
+      <div class="chart-wrap">
+        <canvas id="salaryChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">⏱ Antigüedad Promedio</span>
+        <span class="chart-badge green">Activos</span>
+      </div>
+      <div class="metric-row" id="tenureMetrics"></div>
+      <div class="chart-wrap">
+        <canvas id="tenureChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Perfiles -->
+  <div style="margin-top:1.2rem;" class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title">🎨 Distribución por Perfil</span>
+      <span class="chart-badge purple">Activos</span>
+    </div>
+    <div class="chart-wrap lg">
+      <canvas id="perfilChart"></canvas>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- DIRECTORIO -->
+<section id="directorio">
+  <div class="section-title">Directorio de Colaboradores</div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <div style="display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;">
+        <input type="text" class="emp-search" id="empSearch" placeholder="🔍  Buscar por nombre, proyecto, formador..." style="max-width:380px;margin-bottom:0;" oninput="filterDirectory()">
+        <div class="tabs" style="margin-bottom:0;">
+          <div class="tab active" onclick="switchDirTab('todos',this)">Todos</div>
+          <div class="tab" onclick="switchDirTab('activos',this)">Activos</div>
+          <div class="tab" onclick="switchDirTab('bajas',this)">Bajas</div>
+        </div>
+      </div>
+      <span class="chart-badge green" id="dirCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th><th>Perfil</th><th>Nivel</th><th>Proyecto</th><th>Formador</th><th>Empleador</th><th>Estatus</th>
+          </tr>
+        </thead>
+        <tbody id="dirTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<div style="text-align:center;padding:2rem;color:var(--text3);font-size:.78rem;border-top:1px solid var(--border);margin-top:2rem;">
+  <img src="https://www.genspark.ai/api/files/s/9CKDGxvu" alt="UiX" style="height:24px;opacity:.5;margin-bottom:.5rem;display:block;margin-left:auto;margin-right:auto;">
+  UiX Capital Humano Dashboard 2026 — Datos actualizados al <span id="footerDate"></span>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-// URL DE TU HOJA PUBLICADA (GID 729849311)
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQlS-Fp8-UjIbVxG86HEaZZkDslTUy3ALOG1v0jR3q8NWmo1IIxiB50IedsEGqkB_NVXw03Y1i0tNV/pub?gid=729849311&single=true&output=csv';
+// ─────────────────────────────────────────────────────────
+// DATOS EMBEBIDOS (se sobreescriben al subir nuevo Excel)
+// ─────────────────────────────────────────────────────────
+let DATA = {
+  activos: 123,
+  bajas: 96,
+  total: 219,
+  genero: { F: 56, M: 67 },
+  generaciones: { 'Millennials': 82, 'Gen Z': 38, 'Gen X': 3 },
+  edadBins: { '18-25': 10, '26-30': 40, '31-35': 44, '36-40': 21, '41-45': 5, '46+': 3 },
+  edadPromedio: 31.2,
+  empleador: { 'SATORI': 47, 'NACH': 46, 'UPAX': 16, 'MASTER TALENT': 14 },
+  nivelUiX: { 'Mid Niv 2': 41, 'Sr Niv 2': 15, 'Mid Niv 1': 13, 'Sr Niv 1': 8, 'Sr Niv 3': 7, 'Mid Niv 3': 7, 'Jr Niv 1': 6, 'Jr Niv 3': 5, 'Jr Niv 2': 5, 'Jr Niv 2 ': 2 },
+  ubicacion: { 'Ciudad de México': 106, 'Puebla': 3, 'Guatemala': 3, 'Honduras': 3, 'Panamá': 2, 'Foránea': 2, 'Hidalgo': 1, 'Atlacomulco': 1, 'Coahuila': 1, 'Mérida': 1 },
+  proyectosActivos: { 'COBRANZA': 10, 'AFILIACIÓN ÚNICA': 9, 'LAM': 9, 'STAFF': 7, 'PRESTA PRENDA': 6, 'RPI - E.COMMERCE': 6, 'ZEUS': 5, 'ORIGINACIÓN ÚNICA': 5, 'GS MOTOS': 4, 'SAC': 4, 'PRESTA PRENDA AUTOS': 4, 'PROCESO ÚNICO DE PAGO': 4, 'TORRE DE CONTROL': 4, 'ORIGINACIÓN': 3, 'MONEY FREE FLEX': 3, 'TRADER': 3, 'ARI': 2, 'EDYEN': 2, 'PAX': 2, 'RPI - PLANTAS': 2, 'LDC': 2, 'PROJECT OWNER': 2, 'SWAT TEAM': 2, 'Otros': 10 },
+  proyectosBajas: { 'ORIGINACIÓN ÚNICA': 10, 'COBRANZA': 4, 'RPI - E.COMMERCE': 7, 'ZEUS': 6, 'SAC': 7, 'AFILIACIÓN ÚNICA': 1, 'ITALIKA': 9, 'LAM': 0, 'PRESTA PRENDA': 2, 'GS MOTOS': 1, 'MÁS SALUD': 6, 'Otros': 43 },
+  rotacion: { '2024': 31, '2025': 47, '2026': 18 },
+  bajasMes: [13,11,3,5,9,11,7,5,8,9,4,11],
+  ingresoAnio: { '2020': 2, '2021': 1, '2022': 5, '2023': 8, '2024': 29, '2025': 70, '2026': 7 },
+  salario: { min: 16310, max: 312000, media: 44679, mediana: 37000, p25: 36999 },
+  antiguedadPromedio: 1.38,
+  antiguedadBins: { '< 1 año': 59, '1-2 años': 30, '2-3 años': 14, '3-5 años': 15, '5+ años': 5 },
+  perfiles: { 'D.UX UI': 37, 'D.UX': 15, 'D.UI': 13, 'UX/UI': 10, 'PRODUCT DESIGNER': 9, 'CUSTOMER SUCCESS': 8, 'D.UXW': 6, 'STAFF': 5, 'Writer': 5, 'Otros': 9 },
+  vacaciones: { '12': 17, '14': 6, '2': 3, '6': 3, '11': 3, '5': 2, '7': 2, '9': 2, '8': 1, '10': 1, '4': 1 },
+  formadorDirect: {
+    'MIGUEL ANGEL FLORES REYES': 14,
+    'DIANA MAYRA LAGUNA FERNANDEZ DE LARA': 10,
+    'RUBEN MAURICIO GARCIA RIVERA': 9,
+    'SARA LILIA MONROY BELTRAN': 9,
+    'MARGARITA PEREZ ZAMARRIPA': 9,
+    'LEVI ITURIEL ORTIZ FLORES': 7,
+    'TANIVETH CAMACHO ARREOLA': 7,
+    'JONATHAN DANIEL RAMOS SEGOVIANO': 6,
+    'YAZME GUADALUPE GONZALEZ GUERRA': 6,
+    'JULIO CESAR FLORES GÓMEZ': 6,
+    'ANA CAROLINA QUINTAL ZOGBI': 6,
+    'ARANZA SOFIA CARBAJAL ARTEAGA': 6,
+    'JOSE GABRIEL VALDEZ DIAZ': 5,
+    'ESTEBAN CAZARES CRUZ': 5,
+    'MARCO ANTONIO GONZALEZ MORALES': 2,
+    'SAMANTA CAMACHO CARRENO': 2,
+    'ANGELICA YAZMIN ARANO DIAZ': 2,
+    'JUAN JOSE PAREDES SOLARTE': 2,
+    'WILLIAM ALEJANDRO ALFREDO ULLOA STUARDO': 2,
+    'FERNANDO GIL DE LA ROSA': 1
+  },
+  teamTotal: {
+    'MIGUEL ANGEL FLORES REYES': 110,
+    'RUBEN MAURICIO GARCIA RIVERA': 24,
+    'ANA CAROLINA QUINTAL ZOGBI': 13,
+    'JOSE GABRIEL VALDEZ DIAZ': 19,
+    'JULIO CESAR FLORES GÓMEZ': 7,
+    'MARCO ANTONIO GONZALEZ MORALES': 15,
+    'DIANA MAYRA LAGUNA FERNANDEZ DE LARA': 10,
+    'SAMANTA CAMACHO CARRENO': 4,
+    'JUAN JOSE PAREDES SOLARTE': 2,
+    'WILLIAM ALEJANDRO ALFREDO ULLOA STUARDO': 2
+  },
+  hierarchy: {
+    'MIGUEL ANGEL FLORES REYES': {
+      level: 0,
+      subs: ['RUBEN MAURICIO GARCIA RIVERA','ANA CAROLINA QUINTAL ZOGBI','JOSE GABRIEL VALDEZ DIAZ',
+             'JULIO CESAR FLORES GÓMEZ','MARCO ANTONIO GONZALEZ MORALES',
+             'DIANA MAYRA LAGUNA FERNANDEZ DE LARA','JUAN JOSE PAREDES SOLARTE',
+             'SAMANTA CAMACHO CARRENO','WILLIAM ALEJANDRO ALFREDO ULLOA STUARDO']
+    },
+    'RUBEN MAURICIO GARCIA RIVERA': { level:1, subs:['JONATHAN DANIEL RAMOS SEGOVIANO','SARA LILIA MONROY BELTRAN'] },
+    'ANA CAROLINA QUINTAL ZOGBI': { level:1, subs:['LEVI ITURIEL ORTIZ FLORES'] },
+    'JOSE GABRIEL VALDEZ DIAZ': { level:1, subs:['ESTEBAN CAZARES CRUZ','MARGARITA PEREZ ZAMARRIPA'] },
+    'JULIO CESAR FLORES GÓMEZ': { level:1, subs:['FERNANDO GIL DE LA ROSA'] },
+    'MARCO ANTONIO GONZALEZ MORALES': { level:1, subs:['YAZME GUADALUPE GONZALEZ GUERRA','TANIVETH CAMACHO ARREOLA'] },
+    'DIANA MAYRA LAGUNA FERNANDEZ DE LARA': { level:1, subs:[] },
+    'JUAN JOSE PAREDES SOLARTE': { level:1, subs:[] },
+    'SAMANTA CAMACHO CARRENO': { level:1, subs:['ANGELICA YAZMIN ARANO DIAZ'] },
+    'WILLIAM ALEJANDRO ALFREDO ULLOA STUARDO': { level:1, subs:[] },
+    'JONATHAN DANIEL RAMOS SEGOVIANO': { level:2, subs:[] },
+    'SARA LILIA MONROY BELTRAN': { level:2, subs:[] },
+    'LEVI ITURIEL ORTIZ FLORES': { level:2, subs:[] },
+    'ESTEBAN CAZARES CRUZ': { level:2, subs:[] },
+    'MARGARITA PEREZ ZAMARRIPA': { level:2, subs:[] },
+    'FERNANDO GIL DE LA ROSA': { level:2, subs:[] },
+    'YAZME GUADALUPE GONZALEZ GUERRA': { level:2, subs:[] },
+    'TANIVETH CAMACHO ARREOLA': { level:2, subs:[] },
+    'ANGELICA YAZMIN ARANO DIAZ': { level:2, subs:[] }
+  },
+  employees: [
+    // Subset for directory (will be replaced by Excel parse)
+  ]
+};
 
-async function loadData() {
+// Full employee list embedded
+DATA.employees = [{"nombre": "ANA BELEM MARQUEZ ALMAZAN", "perfil": "D.UX UI", "nivel": "", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2023, "baja_anio": 2024, "mes_baja": 8, "salario": 0, "ubicacion": "Baja", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "PATRICIA JANETH RODRIGUEZ CASTILLO", "perfil": "D.UX UI", "nivel": "", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2023, "baja_anio": 2024, "mes_baja": 9, "salario": 0, "ubicacion": "Baja", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "MOLINA PRIETO, JONATHAN ADRIAN", "perfil": "D.UX UI", "nivel": "", "proyecto": "ITALIKA", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "UPAX", "estatus": "Baja", "sexo": "M", "edad": 32.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 5, "salario": 0, "ubicacion": "Baja", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1994-01-01 00:00:00"}, {"nombre": "MARQUEZ GARCIA, DIANA IVETTE", "perfil": "D.UX UI", "nivel": "", "proyecto": "ITALIKA", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "UPAX", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 5, "salario": 0, "ubicacion": "Baja", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "FERNANDO MONTES JIMENEZ", "perfil": "D.UX", "nivel": "", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 33.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 2, "salario": 0, "ubicacion": "Baja", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1992-10-24 00:00:00"}, {"nombre": "LOURDES ROMERO DE PAZ", "perfil": "D.UX UI", "nivel": "", "proyecto": "RPI - E.COMMERCE", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 7, "salario": 0, "ubicacion": "Baja", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "GONZALEZ LIRA LUZ JOCABED", "perfil": "D.UX UI", "nivel": "", "proyecto": "CIRCULO AZTECA", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 6, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "JOSE CARLOS GALICIA SALINAS", "perfil": "D.UX UI", "nivel": "", "proyecto": "RPI - E.COMMERCE", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 10, "salario": 0, "ubicacion": "Baja", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "MARIA FERNANDA CERVANTES URRUTIA", "perfil": "D.UX UI", "nivel": "", "proyecto": "ITALIKA", "formador": "ALBA ESTHER DE LA GARZA GARZA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 10, "salario": 0, "ubicacion": "Baja", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "SEBASTIAN SANDOVAL RODRIGUEZ", "perfil": "D.UXW", "nivel": "", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 32.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 2, "salario": 0, "ubicacion": "Baja", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1993-10-03 00:00:00"}, {"nombre": "HERNANDO HIDALGO PACHECO", "perfil": "D.UX UI", "nivel": "", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 10, "salario": 0, "ubicacion": "Baja", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "FELIX BERMUDEZ NIMBE GEORGINA", "perfil": "D.UX UI", "nivel": "", "proyecto": "CIRCULO AZTECA", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 5, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "LOPEZ GONZALEZ ELIZABETH", "perfil": "D.UX UI", "nivel": "", "proyecto": "CIRCULO AZTECA", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 5, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "AGUILAR PALMA LORENA ANGELICA", "perfil": "D.UX UI", "nivel": "", "proyecto": "CIRCULO AZTECA", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 5, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "MEJIA RASILLA DIANA EUGENIA", "perfil": "D.UX UI", "nivel": "", "proyecto": "ITALIKA", "formador": "ALBA ESTHER DE LA GARZA GARZA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 6, "salario": 0, "ubicacion": "Baja", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "ROLDAN IZAZAGA RENE LEONARDO", "perfil": "D.UX UI", "nivel": "", "proyecto": "DESPIDALIA", "formador": "SANTOS CRISTOBAL FIESCO BANOS", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 5, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "DAVILA VELEZ LUISA JOSEFINA", "perfil": "DOCUMENTADOR", "nivel": "", "proyecto": "SAC", "formador": "SANTOS CRISTOBAL FIESCO BANOS", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 6, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "LOPEZ BIU MARLENE LIZETH", "perfil": "D.UX UI", "nivel": "", "proyecto": "CIRCULO AZTECA", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 6, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "VALENCIA CRAST MARIANA", "perfil": "D.UX UI", "nivel": "", "proyecto": "ITALIKA", "formador": "ALBA ESTHER DE LA GARZA GARZA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 10, "salario": 0, "ubicacion": "Baja", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "MARIANA VALENCIA CRAST", "perfil": "D.UX UI", "nivel": "", "proyecto": "ITALIKA", "formador": "ALBA ESTHER DE LA GARZA GARZA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 10, "salario": 0, "ubicacion": "Baja", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "VILLANUEVA ARAGON JULIO", "perfil": "D.UX UI", "nivel": "", "proyecto": "SAC", "formador": "SANTOS CRISTOBAL FIESCO BANOS", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 8, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "IMELDA HERNANDEZ SANCHEZ", "perfil": "D.UX UI", "nivel": "", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "NACH", "estatus": "Baja", "sexo": "Baja", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 7, "salario": 0, "ubicacion": "Baja", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "FRANCISCO MUJICA ROMERO", "perfil": "D.UX UI", "nivel": "", "proyecto": "RPI - E.COMMERCE", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 6, "salario": 0, "ubicacion": "Baja", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "MARIANA SANTANA", "perfil": "D.UX UI", "nivel": "", "proyecto": "ITALIKA", "formador": "ALBA ESTHER DE LA GARZA GARZA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 9, "salario": 0, "ubicacion": "Baja", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "SERGIO CHAVEZ SANCHEZ", "perfil": "PRODUCT DESIGNER", "nivel": "", "proyecto": "MÁS SALUD", "formador": "CLAUDIA PAULINA PIMENTEL CORDOVA", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 1, "salario": 0, "ubicacion": "Baja", "customerSuccess": "CLAUDIA PAULINA PIMENTEL CORDOVA", "area": "OPERACIONES", "cumpleanios": "1994-08-27 00:00:00"}, {"nombre": "EDUARDO SANCHEZ MENDOZA", "perfil": "D.UX UI", "nivel": "", "proyecto": "RPI - E.COMMERCE", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 12, "salario": 0, "ubicacion": "Baja", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "DUEÑAS FLORES JESICA RUBI", "perfil": "D.UX UI", "nivel": "", "proyecto": "RPI - E.COMMERCE", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 12, "salario": 0, "ubicacion": "Baja", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "SERVIN PEREZ ARTURO RUBEN", "perfil": "D.UX UI", "nivel": "", "proyecto": "ZEUS", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 2, "salario": 0, "ubicacion": "Baja", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "ALEXIS IVAN CHAVEZ ROBLES", "perfil": "D.UX UI", "nivel": "", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 12, "salario": 0, "ubicacion": "Baja", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "NIDIA YOLOTLI ARIZMENDI RIVERA", "perfil": "D.UX UI", "nivel": "", "proyecto": "RPI - E.COMMERCE", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 10, "salario": 0, "ubicacion": "Baja", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "BRENDA RUEDAS GOVEA", "perfil": "DOCUMENTADOR", "nivel": "", "proyecto": "SAC", "formador": "SANTOS CRISTOBAL FIESCO BANOS", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 11, "salario": 0, "ubicacion": "Baja", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "LUNA ACOSTA RODRIGO ADRIAN", "perfil": "D.UX UI", "nivel": "", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 12, "salario": 0, "ubicacion": "Baja", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "REYES VAZQUEZ RAFAEL IVAN", "perfil": "D.UX UI", "nivel": "", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 11, "salario": 0, "ubicacion": "Baja", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "FERNANDO GIL DE LA ROSA", "perfil": "D.UI", "nivel": "", "proyecto": "SEGUROS AZTECA", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 39.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 1, "salario": 0, "ubicacion": "Baja", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1986-10-10 00:00:00"}, {"nombre": "ANDREA STEPHANEA RAMIREZ COLLADO", "perfil": "D.UX UI", "nivel": "", "proyecto": "MÁS SALUD", "formador": "CLAUDIA PAULINA PIMENTEL CORDOVA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 1.0, "generacion": "Gen Alpha", "ingreso": 2024, "baja_anio": 2024, "mes_baja": 12, "salario": 0, "ubicacion": "Baja", "customerSuccess": "CLAUDIA PAULINA PIMENTEL CORDOVA", "area": "OPERACIONES", "cumpleanios": "2025-01-19 00:00:00"}, {"nombre": "DANIEL COLLOLY BENITEZ", "perfil": "D.UX", "nivel": "Sr Niv 2", "proyecto": "SEGUROS AZTECA", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 37.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": 2025, "mes_baja": 3, "salario": 42000, "ubicacion": "Baja", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1988-09-19 00:00:00"}, {"nombre": "CINZIA KARINA GONZALEZ CRUZ - edgar", "perfil": "D.UX UI", "nivel": "Sr Niv 2", "proyecto": "ZEUS", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 38.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 3, "salario": 42000, "ubicacion": "Baja", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "1987-10-18 00:00:00"}, {"nombre": "ULISES IVAN LICONA JAVIER", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA JOYAS", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 30.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 10, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "1995-09-06 00:00:00"}, {"nombre": "NADIA JIMENEZ BARRIGA", "perfil": "D.UX", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA JOYAS", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 31.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 7, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "1994-10-19 00:00:00"}, {"nombre": "TAHISA YADIRA HARO DAVALOS", "perfil": "D.UX UI", "nivel": "Jr Niv 2", "proyecto": "RPI - E.COMMERCE", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 11, "salario": 29000, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "1999-06-05 00:00:00"}, {"nombre": "MAYAHUEL MARTINEZ MONTES", "perfil": "D.UX UI", "nivel": "Sr Niv 3", "proyecto": "MÁS SALUD", "formador": "CLAUDIA PAULINA PIMENTEL CORDOVA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 4, "salario": 47000, "ubicacion": "Ciudad de México", "customerSuccess": "CLAUDIA PAULINA PIMENTEL CORDOVA", "area": "OPERACIONES", "cumpleanios": "1994-09-20 00:00:00"}, {"nombre": "GISELA VERONICA BADILLO ROBLEADO", "perfil": "PRODUCT DESIGNER", "nivel": "Jr Niv 1", "proyecto": "MÁS SALUD", "formador": "CLAUDIA PAULINA PIMENTEL CORDOVA", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 35.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 4, "salario": 50000, "ubicacion": "Ciudad de México", "customerSuccess": "CLAUDIA PAULINA PIMENTEL CORDOVA", "area": "OPERACIONES", "cumpleanios": "1990-12-10 00:00:00"}, {"nombre": "LAURA GIOVANA GARCIA RODRIGUEZ", "perfil": "D.UXW", "nivel": "Jr Niv 3", "proyecto": "ECOSISTEMA LCD / CONSUMO", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 33.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 4, "salario": 32012, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "1993-02-22 00:00:00"}, {"nombre": "ALEJANDRA MORENO CRUZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "ECOSISTEMA LCD / CONSUMO", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 38.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 9, "salario": 37174, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "1987-10-11 00:00:00"}, {"nombre": "LUIS MIGUEL BASURTO AMEZCUA", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "ECOSISTEMA LCD / CONSUMO", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 12, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "1994-08-30 00:00:00"}, {"nombre": "DAVID MOISES GONZALEZ BERNAL", "perfil": "D.UI", "nivel": "Sr Niv 2", "proyecto": "TORRE DE CONTROL", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 35.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": 2025, "mes_baja": 12, "salario": 42900, "ubicacion": "Guadalajara", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1990-10-07 00:00:00"}, {"nombre": "ROCIO AMELIA ESTRADA LOPEZ", "perfil": "D.UX RESEARCH", "nivel": "Mid Niv 2", "proyecto": "T.PREMIA", "formador": "JUAN JOSE PAREDES SOLARTE", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 43.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 5, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JUAN JOSE PAREDES SOLARTE", "area": "OPERACIONES", "cumpleanios": "1982-05-23 00:00:00"}, {"nombre": "DIANA EDELMIR ZAMBRANO SANABRIA", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "ITALIKA", "formador": "ALBA ESTHER DE LA GARZA GARZA", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 41.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 2, "salario": 37580, "ubicacion": "Yecapixtla", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1984-11-25 00:00:00"}, {"nombre": "DANIEL ALBERTO RANGEL MARTINEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA JOYAS", "formador": "PAOLA ELIZABETH PALOMINO RODRIGUEZ", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 41.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 5, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1984-06-15 00:00:00"}, {"nombre": "ANTONIO SEBASTIAN RODRIGUEZ MELGOZA", "perfil": "STAFF", "nivel": "Sr Niv 3", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Baja", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": 2025, "mes_baja": 6, "salario": 45000, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "1994-06-24 00:00:00"}, {"nombre": "MIRIAM MAGALY LEDESMA ROMERO - teo", "perfil": "D.UX UI", "nivel": "Sr Niv 3", "proyecto": "RECLUTALIA", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 38.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 6, "salario": 44000, "ubicacion": "Ciudad de México", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "1988-02-03 00:00:00"}, {"nombre": "FRANCISCO ANTONIO MALDONADO LOPERENA", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 33.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 6, "salario": 37580, "ubicacion": "Foraneo", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "1993-01-10 00:00:00"}, {"nombre": "EFREN GARCIA LUIS", "perfil": "D.UX", "nivel": "Mid Niv 1", "proyecto": "PRESTA PRENDA AUTOS", "formador": "PAOLA ELIZABETH PALOMINO RODRIGUEZ", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 6, "salario": 34039, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1994-11-01 00:00:00"}, {"nombre": "SERGIO VERDEJO  TREJO", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA INMUEBLES", "formador": "PAOLA ELIZABETH PALOMINO RODRIGUEZ", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 40.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 6, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1985-10-07 00:00:00"}, {"nombre": "CLAUDIA LUCIA LOPEZ BARAHONA", "perfil": "VENTAS", "nivel": "Sr Niv 2", "proyecto": "COMERCIAL", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 41.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 6, "salario": 42000, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "1985-01-30 00:00:00"}, {"nombre": "SUSANA AMALINALLI RAMIREZ BELLO", "perfil": "D.UXW", "nivel": "Jr Niv 3", "proyecto": "PRESTA PRENDA INMUEBLES", "formador": "PAOLA ELIZABETH PALOMINO RODRIGUEZ", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 34.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 7, "salario": 32000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1992-02-10 00:00:00"}, {"nombre": "ABRAHAM AMHED SANDOVAL ANAYA", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "COBRANZA", "formador": "ALBA ESTHER DE LA GARZA GARZA", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 34.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 7, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1991-05-17 00:00:00"}, {"nombre": "ALBA ESTHER DE LA GARZA GARZA", "perfil": "PRODUCT DESIGNER", "nivel": "Sr Niv 3", "proyecto": "COBRANZA", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "UPAX", "estatus": "Baja", "sexo": "F", "edad": 36.0, "generacion": "Millennials", "ingreso": 2021, "baja_anio": 2025, "mes_baja": 7, "salario": 60600, "ubicacion": "Monterrey", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1989-07-22 00:00:00"}, {"nombre": "VICTOR HUGO VELARDE ESPINDOLA", "perfil": "PRODUCT DESIGNER", "nivel": "Sr Niv 3", "proyecto": "ZEUS", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 52.0, "generacion": "Gen X", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 7, "salario": 45000, "ubicacion": "Ciudad de México", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "1973-06-12 00:00:00"}, {"nombre": "MARIA FERNANDA ESTRADA SANCHEZ", "perfil": "D. UX UI", "nivel": "Jr Niv 3", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 1, "salario": 32039, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1993-10-31 00:00:00"}, {"nombre": "ANDRES RAFAEL TELLEZ VALDEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "SAC", "formador": "VIVIANA ROMERO GONZALEZ", "empleador": "MASTER TALENT", "estatus": "Baja", "sexo": "M", "edad": 36.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 8, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "1989-08-24 00:00:00"}, {"nombre": "DIANA IRIS ROSALES COLIN", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA VENTA", "formador": "PAOLA ELIZABETH PALOMINO RODRIGUEZ", "empleador": "MASTER TALENT", "estatus": "Baja", "sexo": "F", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 8, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "2000-03-15 00:00:00"}, {"nombre": "ALBERTO ISRAEL DEL REAL VAZQUEZ", "perfil": "D.UX", "nivel": "Mid Niv 2", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 36.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 5, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1989-06-24 00:00:00"}, {"nombre": "EDEN NAHUM LOPEZ ORTEGA", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 41.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 9, "salario": 37174, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1985-02-06 00:00:00"}, {"nombre": "KRISHNA AMEYALLI GRANDE SALAZAR", "perfil": "PM", "nivel": "Jr  Niv 2", "proyecto": "STAFF 1", "formador": "HUGO MIRANDA ARREDONDO", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 30.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 12, "salario": 70000, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "1995-09-05 00:00:00"}, {"nombre": "CHELSY ALEJANDRA GARCIA JIMENEZ", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 30.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 12, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1995-05-24 00:00:00"}, {"nombre": "ANA KAREN ARIAS GUERRERO", "perfil": "D.UI", "nivel": "Mid Niv 3", "proyecto": "SAC", "formador": "VIVIANA ROMERO GONZALEZ", "empleador": "UPAX", "estatus": "Baja", "sexo": "F", "edad": 31.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": 2025, "mes_baja": 9, "salario": 38150, "ubicacion": "Ciudad de México", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "1994-06-16 00:00:00"}, {"nombre": "PAOLA ELIZABETH PALOMINO RODRIGUEZ", "perfil": "PRODUCT DESIGNER", "nivel": "Mid Niv 2", "proyecto": "MARCO", "formador": "MARCO ANTONIO GONZALEZ MORALES", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 36.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 9, "salario": 55000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1990-02-03 00:00:00"}, {"nombre": "VICTORIA ALEJANDRA DELGADO ULLOA", "perfil": "D.UXW", "nivel": "Mid Niv 2", "proyecto": "CAMBACEO", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 33.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 9, "salario": 37000, "ubicacion": "Puebla", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1992-12-05 00:00:00"}, {"nombre": "EDSON ALDAIR HERNANDEZ GOMEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "ITALIKA", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "MASTER TALENT", "estatus": "Baja", "sexo": "M", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 10, "salario": 37000, "ubicacion": "Monterrey", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1993-10-23 00:00:00"}, {"nombre": "DIANA CITLALLI LOPEZ ORTEGA", "perfil": "D.UX UI", "nivel": "Jr Niv 3", "proyecto": "PRESTA PRENDA VENTA", "formador": "PAOLA ELIZABETH PALOMINO RODRIGUEZ", "empleador": "MASTER TALENT", "estatus": "Baja", "sexo": "F", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 10, "salario": 32000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "2000-10-10 00:00:00"}, {"nombre": "CLAUDIA PAULINA PIMENTEL CORDOVA", "perfil": "SERVICE DESIGNER", "nivel": "Mid Niv 3", "proyecto": "MÁS SALUD", "formador": "JUAN JOSE PAREDES SOLARTE", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 36.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 4, "salario": 80000, "ubicacion": "Ciudad de México", "customerSuccess": "JUAN JOSE PAREDES SOLARTE", "area": "OPERACIONES", "cumpleanios": "1989-11-28 00:00:00"}, {"nombre": "ERIKA DIAZ MOLINA", "perfil": "D.UX", "nivel": "Jr Niv 2", "proyecto": "MÁS SALUD", "formador": "JUAN JOSE PAREDES SOLARTE", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 34.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2025, "mes_baja": 9, "salario": 29026, "ubicacion": "Ciudad de México", "customerSuccess": "JUAN JOSE PAREDES SOLARTE", "area": "OPERACIONES", "cumpleanios": "1992-03-10 00:00:00"}, {"nombre": "JORGE RENTERIA GALLEGOS", "perfil": "D. UX UI", "nivel": "Sr Niv 3", "proyecto": "GS MOTOS", "formador": "ESTEBAN CAZARES CRUZ", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 40.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 4, "salario": 43817, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1985-08-08 00:00:00"}, {"nombre": "PILAR GARCIA RAMIREZ", "perfil": "D. UI", "nivel": "Mid Niv 1", "proyecto": "SWAT TEAM", "formador": "ADALBERTO LANDIN OLIVARES", "empleador": "MASTER TALENT", "estatus": "Baja", "sexo": "F", "edad": 36.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 11, "salario": 35000, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1989-06-02 00:00:00"}, {"nombre": "SANDRA LUCIA IBARRA VELASCO", "perfil": "D.UX UI", "nivel": "Sr Niv 2", "proyecto": "SAC", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 29.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2025, "mes_baja": 8, "salario": 43000, "ubicacion": "Ciudad de México", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "1996-08-23 00:00:00"}, {"nombre": "HUGO MIRANDA ARREDONDO", "perfil": "STAFF", "nivel": "Mid Niv 3", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Baja", "sexo": "M", "edad": 33.0, "generacion": "Millennials", "ingreso": 2021, "baja_anio": 2025, "mes_baja": 12, "salario": 80028, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "1992-12-05 00:00:00"}, {"nombre": "OSCAR ALI BARRAGAN VELAZQUEZ", "perfil": "D.UI", "nivel": "Sr Niv 2", "proyecto": "DESPIDALIA", "formador": "SANTOS CRISTOBAL FIESCO BANOS", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 38.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": 2025, "mes_baja": 12, "salario": 42900, "ubicacion": "Ciudad de México", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "1988-01-02 00:00:00"}, {"nombre": "RAUL ULISES OBREGON", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA MEJORA CONTINUA", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "MASTER TALENT", "estatus": "Baja", "sexo": "M", "edad": 34.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 1, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1991-07-06 00:00:00"}, {"nombre": "ARIC DANIEL LERMA RUIZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "CAMBACEO", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 1, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1999-06-25 00:00:00"}, {"nombre": "ANA CECILIA GARCÍA CHÍCHARO", "perfil": "D.UXW", "nivel": "Sr Niv 3", "proyecto": "ARI", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 37.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2026, "mes_baja": 1, "salario": 44000, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1988-12-10 00:00:00"}, {"nombre": "SONIA MENDEZ JUAREZ", "perfil": "D.UX UI", "nivel": "Mid Niv 3", "proyecto": "ZEUS", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 44.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2026, "mes_baja": 1, "salario": 39590, "ubicacion": "Ciudad de México", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "1981-05-02 00:00:00"}, {"nombre": "CORAZON DE MARIA NAVA SANCHEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 1", "proyecto": "ZEUS", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 29.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2026, "mes_baja": 1, "salario": 33641, "ubicacion": "Ciudad de México", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "1996-04-10 00:00:00"}, {"nombre": "GERARDO URIEL TINOCO ROJAS", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "RECLUTALIA", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 46.0, "generacion": "Gen X", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 1, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "1979-03-30 00:00:00"}, {"nombre": "MONICA GABRIELA JASSO ROSALES", "perfil": "D.UX", "nivel": "Mid Niv 3", "proyecto": "ZEUS", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "SATORI", "estatus": "Baja", "sexo": "F", "edad": 29.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": 2026, "mes_baja": 1, "salario": 39459, "ubicacion": "Ciudad de México", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "1996-11-26 00:00:00"}, {"nombre": "DIANA MARCELA FERNANDEZ ROSALES", "perfil": "D.UX UI", "nivel": "Jr  Niv 2", "proyecto": "UPAXER", "formador": "ANGELICA YAZMIN ARANO DIAZ", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 34.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 1, "salario": 51400, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1991-06-26 00:00:00"}, {"nombre": "EDGAR MANUEL SÁNCHEZ", "perfil": "GERENTE INNOVACIÓN", "nivel": "Sr Niv 3", "proyecto": "INNOVACION", "formador": "TANIA ALEJANDRA SÁNCHEZ OLAIZ", "empleador": "MASTER TALENT", "estatus": "Baja", "sexo": "M", "edad": 41.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 1, "salario": 100000, "ubicacion": "Ciudad de México", "customerSuccess": "FERNANDA GALLARDO", "area": "OPERACIONES", "cumpleanios": "1985-01-12 00:00:00"}, {"nombre": "Yazmin Nixteha Velasco Garcia", "perfil": "D.UX UI", "nivel": "Sr Niv 3", "proyecto": "PROMO ESPACIO", "formador": "ROMINA MELENDEZ MIRELES", "empleador": "UPAX", "estatus": "Baja", "sexo": "F", "edad": 36.0, "generacion": "Millennials", "ingreso": 2022, "baja_anio": 2026, "mes_baja": 2, "salario": 44720, "ubicacion": "Ciudad de México", "customerSuccess": "ROMINA MELENDEZ MIRELES", "area": "OPERACIONES", "cumpleanios": "1989-05-30 00:00:00"}, {"nombre": "VIVIANA ROMERO GONZALEZ", "perfil": "PRODUCT DESIGNER", "nivel": "Sr Niv 3", "proyecto": "SAC", "formador": "SANTOS CRISTOBAL FIESCO BANOS", "empleador": "UPAX", "estatus": "Baja", "sexo": "F", "edad": 30.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": 2026, "mes_baja": 1, "salario": 59400, "ubicacion": "Ciudad de México", "customerSuccess": "SANTOS CRISTOBAL FIESCO BANOS", "area": "OPERACIONES", "cumpleanios": "1996-02-12 00:00:00"}, {"nombre": "JOSE EDUARDO SEGOVIA RAMIREZ", "perfil": "D.UX UI", "nivel": "Jr Niv 3", "proyecto": "PRESTA PRENDA", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "NACH", "estatus": "Baja", "sexo": "M", "edad": 24.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 2, "salario": 31000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "2001-10-18 00:00:00"}, {"nombre": "NYDIA INGRID ISLAS VAZQUEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "CAMBACEO", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 2, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1994-02-05 00:00:00"}, {"nombre": "ROMINA MELENDEZ MIRELES", "perfil": "CUSTOMER SUCCESS", "nivel": "Sr Niv 3", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Baja", "sexo": "F", "edad": 37.0, "generacion": "Millennials", "ingreso": 2021, "baja_anio": 2026, "mes_baja": 2, "salario": 90160, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1988-11-26 00:00:00"}, {"nombre": "ROBERTO AYALA NUÑEZ", "perfil": "D.UI", "nivel": "Sr Niv 1", "proyecto": "PROCESO ÚNICODE PAGO", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 48.0, "generacion": "Gen X", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 2, "salario": 40000, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "1977-10-22 00:00:00"}, {"nombre": "Evelyn Lidia Alcaraz Hernández", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "NACH", "estatus": "Baja", "sexo": "F", "edad": 41.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 2, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1984-07-12 00:00:00"}, {"nombre": "SANTOS CRISTOBAL FIESCO BANOS", "perfil": "CUSTOMER SUCCESS", "nivel": "Sr Niv 3", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Baja", "sexo": "M", "edad": 44.0, "generacion": "Millennials", "ingreso": 2021, "baja_anio": 2026, "mes_baja": 2, "salario": 90160, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1981-05-19 00:00:00"}, {"nombre": "CESAR ABRAHAM NAVARRETE VAZQUEZ", "perfil": "UX WRITER", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA INMUEBLES", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "SATORI", "estatus": "Baja", "sexo": "M", "edad": 45.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": 2026, "mes_baja": 3, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1981-03-01 00:00:00"}, {"nombre": "MIGUEL ANGEL FLORES REYES", "perfil": "STAFF", "nivel": "", "proyecto": "STAFF 1", "formador": "CECI", "empleador": "UPAX", "estatus": "Activo", "sexo": "M", "edad": 42.0, "generacion": "Millennials", "ingreso": 2002, "baja_anio": null, "mes_baja": null, "salario": 312000, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "OPERACIONES", "cumpleanios": "1983-08-09 00:00:00"}, {"nombre": "JOSE GABRIEL VALDEZ DIAZ", "perfil": "CUSTOMER SUCCESS", "nivel": "Sr Niv 3", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Activo", "sexo": "M", "edad": 40.0, "generacion": "Millennials", "ingreso": 2020, "baja_anio": null, "mes_baja": null, "salario": 90400, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1985-07-11 00:00:00"}, {"nombre": "MARIA FERNANDA GALLARDO RAMIREZ", "perfil": "STAFF", "nivel": "", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Activo", "sexo": "F", "edad": 38.0, "generacion": "Millennials", "ingreso": 2020, "baja_anio": null, "mes_baja": null, "salario": 95200, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "ESTRATEGIA", "cumpleanios": "1987-06-12 00:00:00"}, {"nombre": "ANGELICA YAZMIN ARANO DIAZ", "perfil": "D. UX UI", "nivel": "Sr Niv 3", "proyecto": "STAFF 1", "formador": "SAMANTA CAMACHO CARRENO", "empleador": "UPAX", "estatus": "Activo", "sexo": "F", "edad": 36.0, "generacion": "Millennials", "ingreso": 2021, "baja_anio": null, "mes_baja": null, "salario": 59954, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1990-02-04 00:00:00"}, {"nombre": "YAZME GUADALUPE GONZALEZ GUERRA", "perfil": "PRODUCT DESIGNER", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA", "formador": "MARCO ANTONIO GONZALEZ MORALES", "empleador": "UPAX", "estatus": "Activo", "sexo": "F", "edad": 33.0, "generacion": "Millennials", "ingreso": 2022, "baja_anio": null, "mes_baja": null, "salario": 55000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "24/11/1992"}, {"nombre": "DIEGO LUIS VENTURA PEREZ", "perfil": "D.UX", "nivel": "Mid Niv 1", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "UPAX", "estatus": "Activo", "sexo": "M", "edad": 32.0, "generacion": "Millennials", "ingreso": 2022, "baja_anio": null, "mes_baja": null, "salario": 53748, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1993-04-03 00:00:00"}, {"nombre": "MARCO ANTONIO GONZALEZ MORALES", "perfil": "CUSTOMER SUCCESS", "nivel": "Jr Niv 3", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Activo", "sexo": "M", "edad": 51.0, "generacion": "Gen X", "ingreso": 2022, "baja_anio": null, "mes_baja": null, "salario": 71500, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "21/10/1974"}, {"nombre": "RUBEN MAURICIO GARCIA RIVERA", "perfil": "CUSTOMER SUCCESS", "nivel": "Mid Niv 3", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Activo", "sexo": "M", "edad": 36.0, "generacion": "Millennials", "ingreso": 2022, "baja_anio": null, "mes_baja": null, "salario": 80107, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "14/12/1989"}, {"nombre": "ESTEBAN CAZARES CRUZ", "perfil": "PRODUCT DESIGNER", "nivel": "Sr Niv 2", "proyecto": "GS MOTOS", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "UPAX", "estatus": "Activo", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2022, "baja_anio": null, "mes_baja": null, "salario": 58136, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "23/08/1994"}, {"nombre": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "perfil": "CUSTOMER SUCCESS", "nivel": "Jr Niv 1", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Activo", "sexo": "F", "edad": 29.0, "generacion": "Gen Z", "ingreso": 2023, "baja_anio": null, "mes_baja": null, "salario": 65016, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "1997-02-12 00:00:00"}, {"nombre": "VICTOR EDUARDO OLIVEROS AULAR", "perfil": "D.UX UI", "nivel": "Sr Niv 3", "proyecto": "PRESTA PRENDA INMUEBLES", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "UPAX", "estatus": "Activo", "sexo": "M", "edad": 36.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": null, "mes_baja": null, "salario": 44720, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1989-11-05 00:00:00"}, {"nombre": "EDGAR EMILIO LEON VIDAL", "perfil": "D.UI", "nivel": "Sr Niv 2", "proyecto": "PAX", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 36.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": null, "mes_baja": null, "salario": 43000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "18/12/1989"}, {"nombre": "SARA LILIA MONROY BELTRAN", "perfil": "PRODUCT DESIGNER", "nivel": "Jr  Niv 2", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": null, "mes_baja": null, "salario": 51900, "ubicacion": "Hidalgo", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1993-10-06 00:00:00"}, {"nombre": "DIANA CARBAJAL MEJIA", "perfil": "D.UI", "nivel": "Sr Niv 2", "proyecto": "RPI - E.COMMERCE", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 30.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": null, "mes_baja": null, "salario": 42900, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "18/09/1995"}, {"nombre": "ERICK DAMIAN SANCHEZ LINARES", "perfil": "STAFF", "nivel": "", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Activo", "sexo": "M", "edad": 32.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": null, "mes_baja": null, "salario": 45000, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "ESTRATEGIA", "cumpleanios": "26/10/1993"}, {"nombre": "KARINA MARTINEZ RUIZ", "perfil": "D.UI", "nivel": "Sr Niv 3", "proyecto": "TRADER", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "UPAX", "estatus": "Activo", "sexo": "F", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2023, "baja_anio": null, "mes_baja": null, "salario": 44616, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1997-09-04 00:00:00"}, {"nombre": "SAMANTA CAMACHO CARRENO", "perfil": "STAFF", "nivel": "", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Activo", "sexo": "F", "edad": 34.0, "generacion": "Millennials", "ingreso": 2023, "baja_anio": null, "mes_baja": null, "salario": 90090, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "ESTRATEGIA", "cumpleanios": "21/06/1991"}, {"nombre": "FRANCISCO JAIME GARCIA", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "TORRE DE CONTROL", "formador": "JONATHAN DANIEL RAMOS SEGOVIANO", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 37174, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1997-12-05 00:00:00"}, {"nombre": "JOSE DE JESUS VALDES LOPEZ", "perfil": "D.UX UI", "nivel": "Sr Niv 2", "proyecto": "EDYEN", "formador": "JUAN JOSE PAREDES SOLARTE", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 38.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 42007, "ubicacion": "Ciudad de México", "customerSuccess": "JUAN JOSE PAREDES SOLARTE", "area": "OPERACIONES", "cumpleanios": "22/12/1987"}, {"nombre": "ESTEFANIA RODRIGUEZ AGUILAR", "perfil": "D.UXW", "nivel": "Mid Niv 2", "proyecto": "SAC", "formador": "ANA CAROLINA QUINTAL ZOGBI", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "27/12/1997"}, {"nombre": "LEVI ITURIEL ORTIZ FLORES", "perfil": "PRODUCT DESIGNER", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "ANA CAROLINA QUINTAL ZOGBI", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 37.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "18/10/1988"}, {"nombre": "KAREN MICHEL SIXTO LAZARO", "perfil": "D.UX UI", "nivel": "Sr Niv 2", "proyecto": "RPI - PLANTAS", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 42000, "ubicacion": "Puebla", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "15/11/2000"}, {"nombre": "TONANTZIN ESQUIVEL ARCE", "perfil": "D.UX", "nivel": "Mid Niv 2", "proyecto": "SAC", "formador": "ANA CAROLINA QUINTAL ZOGBI", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 35.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "16/07/1990"}, {"nombre": "ARANZA SOFIA CARBAJAL ARTEAGA", "perfil": "CUSTOMER SUCCESS", "nivel": "Jr Niv 1", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 65000, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1999-08-12 00:00:00"}, {"nombre": "JULIO CESAR FLORES GÓMEZ", "perfil": "CUSTOMER SUCCESS", "nivel": "Mid Niv 3", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 40.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 80000, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "20/12/1985"}, {"nombre": "RAUL AGUILERA CRUZ", "perfil": "D.UX", "nivel": "Mid Niv 2", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 41.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1984-12-06 00:00:00"}, {"nombre": "JOVANNY ROBERTO FERRER HERNÁNDEZ", "perfil": "D.UX", "nivel": "Mid Niv 3", "proyecto": "ITALIKA", "formador": "ESTEBAN CAZARES CRUZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 27.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 39459, "ubicacion": "Atlacomulco", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1998-04-25 00:00:00"}, {"nombre": "RAUL SALVADOR CASTRO SANCHEZ", "perfil": "D.UX", "nivel": "Sr Niv 1", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 40330, "ubicacion": "Coahuila", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1995-03-02 00:00:00"}, {"nombre": "IVAN ALEJANDRO GONZALEZ URIBE", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "1994-12-09 00:00:00"}, {"nombre": "EDAHI ADRIANA REYES JIMENEZ", "perfil": "D.UX", "nivel": "Mid Niv 1", "proyecto": "TORRE DE CONTROL", "formador": "JONATHAN DANIEL RAMOS SEGOVIANO", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 34000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1994-12-06 00:00:00"}, {"nombre": "ALEJANDRO ALONSO MIRANDA SANTIAGO", "perfil": "D.UX UI", "nivel": "Sr Niv 1", "proyecto": "SAC", "formador": "ANA CAROLINA QUINTAL ZOGBI", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 41852, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "1999-03-31 00:00:00"}, {"nombre": "MIRIAM DESSIRE MARTINEZ MARTINEZ", "perfil": "D.UX", "nivel": "Sr Niv 2", "proyecto": "PROCESO ÚNICODE PAGO", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "UPAX", "estatus": "Activo", "sexo": "F", "edad": 30.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 41999, "ubicacion": "Foranea", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "1995-11-01 00:00:00"}, {"nombre": "SERGIO ALEJANDRO MENDEZ CARDENAS", "perfil": "D.UX UI", "nivel": "Sr Niv 2", "proyecto": "ARI", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 35.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 42039, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1990-11-12 00:00:00"}, {"nombre": "DANIELA DIAZ BAEZA", "perfil": "D.UX", "nivel": "Mid Niv 1", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 34784, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "30/09/1997"}, {"nombre": "MARGARITA PEREZ ZAMARRIPA", "perfil": "PRODUCT DESIGNER", "nivel": "Jr  Niv 2", "proyecto": "COBRANZA", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 52000, "ubicacion": "Puebla", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1994-12-09 00:00:00"}, {"nombre": "JONATHAN DANIEL RAMOS SEGOVIANO", "perfil": "PRODUCT DESIGNER", "nivel": "Jr Niv 1", "proyecto": "TORRE DE CONTROL", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 34.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 50300, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1991-07-26 00:00:00"}, {"nombre": "CLAUDIA PATRICIA MOTA CRUZ", "perfil": "D. UX UI", "nivel": "Sr Niv 2", "proyecto": "RPI - E.COMMERCE", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 30.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 43217, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "1995-12-14 00:00:00"}, {"nombre": "KARLA ITZEL DE LA O CALLEJAS", "perfil": "D.UX", "nivel": "Mid Niv 1", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 41.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 35039, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1984-06-25 00:00:00"}, {"nombre": "JENIFER ELIZABETH GUTIERREZ ALVAREZ", "perfil": "D.UI", "nivel": "Mid Niv 1", "proyecto": "RPI - PLANTAS", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 31.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 34039, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "1994-11-04 00:00:00"}, {"nombre": "ARELI SANTIAGO MENDIOLA", "perfil": "D.UX UI", "nivel": "Jr Niv 3", "proyecto": "PROMO ESPACIO", "formador": "ANGELICA YAZMIN ARANO DIAZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 33.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 32039, "ubicacion": "Foranea", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1992-11-18 00:00:00"}, {"nombre": "KRYSTEL MIREYA PAREDES FLORES", "perfil": "D.UI", "nivel": "Mid Niv 1", "proyecto": "SAC", "formador": "ANA CAROLINA QUINTAL ZOGBI", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 27.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 34039, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "1998-10-28 00:00:00"}, {"nombre": "DORA MARIA PINEDA GALINDO", "perfil": "D.UXW", "nivel": "Jr Niv 3", "proyecto": "RPI - E.COMMERCE", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 33.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 32000, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "1992-11-26 00:00:00"}, {"nombre": "JOSE LUIS LOPEZ TOLEDO", "perfil": "D.UX", "nivel": "Mid Niv 1", "proyecto": "AFILIACIÓN ÚNICA", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 34000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "1998-02-24 00:00:00"}, {"nombre": "IRVING RETIZ RUIZ", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA AUTOS", "formador": "TANIVETH CAMACHO ARREOLA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 36000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "2000-09-09 00:00:00"}, {"nombre": "HECTOR JESUS GUTIERREZ REBOLLEDO", "perfil": "D.UI", "nivel": "Jr Niv 3", "proyecto": "PROCESO ÚNICODE PAGO", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 34.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 32000, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "15/10/1991"}, {"nombre": "EDUARDO CAMPOS TREJO", "perfil": "Writer", "nivel": "Mid Niv 1", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 34.0, "generacion": "Millennials", "ingreso": 2024, "baja_anio": null, "mes_baja": null, "salario": 34923, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1991-05-02 00:00:00"}, {"nombre": "FERNANDA BARCEINAS XICONTECATL", "perfil": "VENTAS", "nivel": "", "proyecto": "STAFF", "formador": "WILLIAM ALEJANDRO ALFREDO ULLOA STUARDO", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 42000, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1999-12-30 00:00:00"}, {"nombre": "CAROLINA ARAMBULA VILLA", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 38.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "1987-12-16 00:00:00"}, {"nombre": "VALERIA STEPHANIE PALOMERA RUELAS", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA AUTOS", "formador": "TANIVETH CAMACHO ARREOLA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1997-04-21 00:00:00"}, {"nombre": "JUAN JOSE PAREDES SOLARTE", "perfil": "CUSTOMER SUCCESS", "nivel": "Mid Niv 3", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 33.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 80000, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "19/12/1992"}, {"nombre": "YUNUEN ELIZABETH SANCHEZ DEL VALLE", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "RPI - E.COMMERCE", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "20/10/1997"}, {"nombre": "ANA CAROLINA QUINTAL ZOGBI", "perfil": "CUSTOMER SUCCESS", "nivel": "", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 33.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 80000, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "ESTRATEGIA", "cumpleanios": "1992-11-05 00:00:00"}, {"nombre": "CARLOS ALBERTO VILLEGAS DELGADO", "perfil": "D.PRESENTACIONES", "nivel": "Jr Niv 1", "proyecto": "TRADER", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 28000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "24/05/1997"}, {"nombre": "TANIVETH CAMACHO ARREOLA", "perfil": "PRODUCT DESIGNER", "nivel": "Jr Niv 1", "proyecto": "PRESTA PRENDA VENTA", "formador": "MARCO ANTONIO GONZALEZ MORALES", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 50000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1994-02-02 00:00:00"}, {"nombre": "LILIANA TORRES FLORES", "perfil": "D.UXW", "nivel": "Sr Niv 3", "proyecto": "PRESTA PRENDA", "formador": "TANIVETH CAMACHO ARREOLA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 31.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 44000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1994-12-04 00:00:00"}, {"nombre": "FERNANDO CASTILLO TREJO", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "ZEUS", "formador": "ESTEBAN CAZARES CRUZ", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 27.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "25/01/1999"}, {"nombre": "DANIELA ITZEL RAMOS MENDOZA", "perfil": "D.UX UI", "nivel": "Sr Niv 1", "proyecto": "ZEUS", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 33.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 40562, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1992-06-06 00:00:00"}, {"nombre": "CLAUDIA VIANEY VARGAS SOTO", "perfil": "D.UX", "nivel": "Sr Niv 1", "proyecto": "GS MOTOS", "formador": "ESTEBAN CAZARES CRUZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 40.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 41100, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1985-11-16 00:00:00"}, {"nombre": "DIANA GISELLE MARTINEZ MERCADO", "perfil": "D.UXW", "nivel": "Mid Niv 2", "proyecto": "TORRE DE CONTROL", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "16/10/1993"}, {"nombre": "ERICK MIGUEL SUAREZ ROSALES", "perfil": "D.UI", "nivel": "Mid Niv 3", "proyecto": "PAX", "formador": "JONATHAN DANIEL RAMOS SEGOVIANO", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 35.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 38999, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1990-07-23 00:00:00"}, {"nombre": "MARIA TERESA AGUILAR SANDOVAL", "perfil": "D.PRESENTACIONES", "nivel": "Jr Niv 2", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 35.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 29000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1990-07-06 00:00:00"}, {"nombre": "FELIX FABIAN ROSAS HERNANDEZ", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 36999, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "1994-01-20 00:00:00"}, {"nombre": "EDGAR VARELA TEOFILO", "perfil": "D.UI", "nivel": "Sr Niv 2", "proyecto": "PRESTA PRENDA APP", "formador": "TANIVETH CAMACHO ARREOLA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 29.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 42000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "19/10/1996"}, {"nombre": "ALMA DELIA CORTES PALMA", "perfil": "D.UX", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA AUTOS", "formador": "TANIVETH CAMACHO ARREOLA", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "F", "edad": 27.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 36000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1998-10-04 00:00:00"}, {"nombre": "EDUARDO IVAN DIAZ GONZALEZ", "perfil": "D.UI", "nivel": "Mid Niv 2", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 41.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1985-01-02 00:00:00"}, {"nombre": "MARTIN ALEJANDRO FUENTES PEREZ", "perfil": "D.UX", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA FIDEGUARDIAN", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "M", "edad": 30.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "28/07/1995"}, {"nombre": "ALBERTO VEGA CRUZ", "perfil": "Writer", "nivel": "Mid Niv 2", "proyecto": "PROCESO ÚNICODE PAGO", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 30.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "1995-08-30 00:00:00"}, {"nombre": "DORA LOURDES MONTILLA RENTERIA", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "TRADER", "formador": "JOSE GABRIEL VALDEZ DIAZ", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "2000-09-04 00:00:00"}, {"nombre": "FERNANDO GIL DE LA ROSA", "perfil": "PRODUCT DESIGNER", "nivel": "Sr Niv 3", "proyecto": "MONEY FREE FLEX", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 39.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 60000, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1986-10-10 00:00:00"}, {"nombre": "DANIA RUIZ VILLA", "perfil": "D.UX", "nivel": "Mid Niv 2", "proyecto": "MONEY FREE FLEX", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 27.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Puebla", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "23/02/1999"}, {"nombre": "MARIA FERNANDA ALLANDE RECIO", "perfil": "D.UXW", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "1994-01-12 00:00:00"}, {"nombre": "EUROPA MORENO MONROY", "perfil": "D.UX", "nivel": "Mid Niv 2", "proyecto": "MONEY FREE FLEX", "formador": "FERNANDO GIL DE LA ROSA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 35.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1991-02-25 00:00:00"}, {"nombre": "DIEGO ARMANDO PEREZ GONZALEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "ZEUS", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 27.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1999-02-22 00:00:00"}, {"nombre": "JENNIFER JOHANA JUAREZ JUAREZ", "perfil": "D.UX UI", "nivel": "Jr Niv 3", "proyecto": "ARI", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "F", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 31000, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1998-02-12 00:00:00"}, {"nombre": "Gheraldine Dhasar Gutierrez Luviano", "perfil": "STAFF", "nivel": "", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "UPAX", "estatus": "Activo", "sexo": "F", "edad": 29.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 45000, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "ESTRATEGIA", "cumpleanios": "23/07/1996"}, {"nombre": "EDGAR DIAZ JAYMEZ", "perfil": "D.UX UI", "nivel": "Sr Niv 2", "proyecto": "ZEUS", "formador": "JULIO CESAR FLORES GÓMEZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 27.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 41810, "ubicacion": "Ciudad de México", "customerSuccess": "JULIO CESAR FLORES GÓMEZ", "area": "OPERACIONES", "cumpleanios": "1999-01-06 00:00:00"}, {"nombre": "TEODULO PEREZ VASQUEZ", "perfil": "D.UX UI", "nivel": "Sr Niv 2", "proyecto": "EDYEN", "formador": "JUAN JOSE PAREDES SOLARTE", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 34.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 41810, "ubicacion": "Ciudad de México", "customerSuccess": "JUAN JOSE PAREDES SOLARTE", "area": "OPERACIONES", "cumpleanios": "1991-04-04 00:00:00"}, {"nombre": "AMADEE ANGELICA RAMIREZ SANCHEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA AUTOS", "formador": "TANIVETH CAMACHO ARREOLA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1993-12-05 00:00:00"}, {"nombre": "SALVADOR OROZCO CRUZ", "perfil": "D.UXW", "nivel": "Mid Niv 2", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 46.0, "generacion": "Gen X", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1980-03-03 00:00:00"}, {"nombre": "YAZMIN PAOLA PEDRAZA HERNANDEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "ORIGINACIÓN ÚNICA", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 41.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1984-03-30 00:00:00"}, {"nombre": "ADALBERTO LANDIN OLIVARES", "perfil": "PRODUCT DESIGNER", "nivel": "Mid Niv 2", "proyecto": "", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 36.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 55000, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1989-10-26 00:00:00"}, {"nombre": "IVAN EDUARDO HERNANDEZ DIAZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "SWAT TEAM", "formador": "ADALBERTO LANDIN OLIVARES", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 23.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "2002-08-29 00:00:00"}, {"nombre": "ADRIANA PATRICIA MARTINEZ CAMARGO", "perfil": "D.UX UI", "nivel": "Jr Niv 2", "proyecto": "PRESTA PRENDA", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 30000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1999-05-11 00:00:00"}, {"nombre": "ALFONSO ANAYA SANTILLANA", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "M", "edad": 33.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1992-09-10 00:00:00"}, {"nombre": "LUIS FELIPE GARCIA MARTINEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "ZEUS", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "M", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "18/09/1997"}, {"nombre": "WILLIAM ALEJANDRO ALFREDO ULLOA STUARDO", "perfil": "GERENTE COMERCIAL", "nivel": "", "proyecto": "STAFF", "formador": "MIGUEL ANGEL FLORES REYES", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 35.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 45000, "ubicacion": "Ciudad de México", "customerSuccess": "STAFF", "area": "COMERCIAL", "cumpleanios": "1990-04-15 00:00:00"}, {"nombre": "PATRICIA CASTILLO MOLINA", "perfil": "D.UX UI", "nivel": "Jr Niv 2", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "M", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 29000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "20/08/1999"}, {"nombre": "ILSE GARCÍA LÓPEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "ORIGINACION", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 34.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Mérida", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "22/06/1991"}, {"nombre": "JOSÉ DAVID SOSA IRÍAS", "perfil": "D.UX UI", "nivel": "Jr Niv 2", "proyecto": "LAM", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "M", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 28000, "ubicacion": "Honduras", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "2000-10-04 00:00:00"}, {"nombre": "KATTIA GARCIA LÓPEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA MEJORA CONTINUA", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1993-10-08 00:00:00"}, {"nombre": "KEYCI MARIELA PADILLA MARTINEZ", "perfil": "D.UX UI", "nivel": "Jr Niv 2", "proyecto": "LAM", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "F", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 30400, "ubicacion": "Honduras", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "15/01/2001"}, {"nombre": "JOSE DAVID REYES PANTALEON", "perfil": "D.UX UI", "nivel": "Sr Niv 1", "proyecto": "LAM", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 29.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Guatemala", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1996-03-29 00:00:00"}, {"nombre": "LUIS ERNESTO LOU NARVAEZ", "perfil": "D.UX UI", "nivel": "Sr Niv 1", "proyecto": "LAM", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Guatemala", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1999-07-02 00:00:00"}, {"nombre": "ROLANDO DAVID SUAREZ GARCIA", "perfil": "D.UX UI", "nivel": "Mid Niv 1", "proyecto": "PROCESO ÚNICODE PAGO", "formador": "ARANZA SOFIA CARBAJAL ARTEAGA", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 35.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 35000, "ubicacion": "Ciudad de México", "customerSuccess": "ARANZA SOFIA CARBAJAL ARTEAGA", "area": "OPERACIONES", "cumpleanios": "1990-09-21 00:00:00"}, {"nombre": "GABRIEL DIAZ MAGAÑA", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "PRESTA PRENDA", "formador": "TANIVETH CAMACHO ARREOLA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1994-11-06 00:00:00"}, {"nombre": "CHRISTOPHER CAPETILLO SANCHEZ", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "ANA CAROLINA QUINTAL ZOGBI", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "M", "edad": 36.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "18/05/1989"}, {"nombre": "PAOLA  TOLEDO TORRES", "perfil": "CONSULTOR CH", "nivel": "", "proyecto": "CAPITAL HUMANO", "formador": "ERICK DAMIAN SANCHEZ LINARES", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "F", "edad": 26.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 16310, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "25/01/2000"}, {"nombre": "ANALISSA SANTOS QUIEL", "perfil": "D.UX UI", "nivel": "Mid Niv 3", "proyecto": "LAM", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "F", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 35091, "ubicacion": "Panama", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "24/11/2000"}, {"nombre": "BRENDA LORENA GONZÁLEZ DE LEÓN", "perfil": "D.UX UI", "nivel": "Sr Niv 1", "proyecto": "LAM", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 35.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37322, "ubicacion": "Guatemala", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1990-10-21 00:00:00"}, {"nombre": "DANIEL ENRIQUE OSUNA VILLAREAL", "perfil": "D.UX UI", "nivel": "Sr Niv 2", "proyecto": "ORIGINACIÓN", "formador": "JONATHAN DANIEL RAMOS SEGOVIANO", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 33.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 42000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1992-06-11 00:00:00"}, {"nombre": "EMERSON ALBERTO GARCÍA CRUZ", "perfil": "D. UXW", "nivel": "Jr Niv 1", "proyecto": "LAM", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 26000, "ubicacion": "Honduras", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1997-04-16 00:00:00"}, {"nombre": "MARGARITO BARRIENTOS ZARCO", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "COBRANZA", "formador": "MARGARITA PEREZ ZAMARRIPA", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 38.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1987-04-13 00:00:00"}, {"nombre": "ALEXIS VALDEZ CORTEZ", "perfil": "UX RESEARCH", "nivel": "Mid Niv 3", "proyecto": "ORIGINACIÓN", "formador": "JONATHAN DANIEL RAMOS SEGOVIANO", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 30.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 39399, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1995-04-05 00:00:00"}, {"nombre": "ALFREDO GONZALEZ FLORES", "perfil": "D.UX UI", "nivel": "Mid Niv 2", "proyecto": "ORIGINACIÓN", "formador": "JONATHAN DANIEL RAMOS SEGOVIANO", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 37.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "19/03/1988"}, {"nombre": "VICTOR MANUEL GONZALEZ GONZALEZ", "perfil": "Writer", "nivel": "Sr Niv 3", "proyecto": "GS MOTOS", "formador": "ESTEBAN CAZARES CRUZ", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 29.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 43817, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "1996-07-07 00:00:00"}, {"nombre": "JULIO ARMANDO AREVALO PEREZ", "perfil": "Writer", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "M", "edad": 39.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "1986-07-11 00:00:00"}, {"nombre": "MARGARITA LÓPEZ JACINTO-FUENTES", "perfil": "Writer", "nivel": "Sr Niv 1", "proyecto": "LAM", "formador": "SARA LILIA MONROY BELTRAN", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "F", "edad": 56.0, "generacion": "Gen X", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 36993, "ubicacion": "Panama", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "24/01/1970"}, {"nombre": "DORIS YARELI SALAZAR MARTÍNEZ", "perfil": "UX/UI", "nivel": "Mid Niv 2", "proyecto": "LDC", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 34.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "16/12/1991"}, {"nombre": "MARIA FERNANDA DOMÍNGUEZ QUIROZ", "perfil": "UX/UI", "nivel": "Sr Niv 2", "proyecto": "LDC", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 33.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 43000, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "31/03/1992"}, {"nombre": "MARIANA CAMACHO CASTILLO", "perfil": "UX/UI", "nivel": "Sr Niv 2", "proyecto": "RPI - E.COMMERCE", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 36.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 43000, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "17/11/1989"}, {"nombre": "SERGIO IVAN VILCHIS GODINEZ", "perfil": "UX/UI", "nivel": "Mid Niv 2", "proyecto": "RPI - E.COMMERCE", "formador": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 37.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "DIANA MAYRA LAGUNA FERNANDEZ DE LARA", "area": "OPERACIONES", "cumpleanios": "1988-09-06 00:00:00"}, {"nombre": "LESLIE STEFANY ORDOÑEZ RODRIGUEZ", "perfil": "UX/UI", "nivel": "Sr Niv 2", "proyecto": "GS MOTOS", "formador": "ESTEBAN CAZARES CRUZ", "empleador": "NACH", "estatus": "Activo", "sexo": "F", "edad": 30.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 42000, "ubicacion": "Ciudad de México", "customerSuccess": "JOSE GABRIEL VALDEZ DIAZ", "area": "OPERACIONES", "cumpleanios": "16/02/1996"}, {"nombre": "DANIA LORELLE MORENO ROJO", "perfil": "UX/UI", "nivel": "Mid Niv 1", "proyecto": "SWAT TEAM", "formador": "ADALBERTO LANDIN OLIVARES", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 23.0, "generacion": "Gen Z", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 34979, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "2002-08-02 00:00:00"}, {"nombre": "LORENA RUÍZ VALDÉZ", "perfil": "UX/UI", "nivel": "Mid Niv 2", "proyecto": "LAM", "formador": "RUBEN MAURICIO GARCIA RIVERA", "empleador": "MASTER TALENT", "estatus": "Activo", "sexo": "F", "edad": 37.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "RUBEN MAURICIO GARCIA RIVERA", "area": "OPERACIONES", "cumpleanios": "1988-10-05 00:00:00"}, {"nombre": "GERARDO HUMBERTO GARZA SABIDO", "perfil": "UX/UI", "nivel": "Mid Niv 2", "proyecto": "AFILIACIÓN ÚNICA", "formador": "LEVI ITURIEL ORTIZ FLORES", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 31.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 37000, "ubicacion": "Ciudad de México", "customerSuccess": "ANA CAROLINA QUINTAL ZOGBI", "area": "OPERACIONES", "cumpleanios": "25/06/1994"}, {"nombre": "DORA LUZ MONDRAGÓN SÁNCHEZ", "perfil": "UX/UI", "nivel": "Mid Niv 1", "proyecto": "RADAR", "formador": "ANGELICA YAZMIN ARANO DIAZ", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 32.0, "generacion": "Millennials", "ingreso": 2025, "baja_anio": null, "mes_baja": null, "salario": 34979, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1993-08-07 00:00:00"}, {"nombre": "RODOLFO GALDAMEZ FARRERA", "perfil": "UI", "nivel": "Mid Niv 1", "proyecto": "PRESTA PRENDA", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 29.0, "generacion": "Gen Z", "ingreso": 2026, "baja_anio": null, "mes_baja": null, "salario": 34979, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1997-02-18 00:00:00"}, {"nombre": "YOSHIRYS DE JESUS SALAS CORONA", "perfil": "UX/UI", "nivel": "Mid Niv 1", "proyecto": "PRESTA PRENDA", "formador": "YAZME GUADALUPE GONZALEZ GUERRA", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 32.0, "generacion": "Millennials", "ingreso": 2026, "baja_anio": null, "mes_baja": null, "salario": 35000, "ubicacion": "Ciudad de México", "customerSuccess": "MARCO ANTONIO GONZALEZ MORALES", "area": "OPERACIONES", "cumpleanios": "1994-02-03 00:00:00"}, {"nombre": "OSWALDO RAÚL SÁNCHEZ ARIZMENDI", "perfil": "ANALISTA BI", "nivel": "", "proyecto": "STAFF", "formador": "Gheraldine Dhasar Gutierrez Luviano", "empleador": "NACH", "estatus": "Activo", "sexo": "M", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2026, "baja_anio": null, "mes_baja": null, "salario": 35000, "ubicacion": "Ciudad de México", "customerSuccess": "GHERALDINE", "area": "OPERACIONES", "cumpleanios": "16/02/2001"}, {"nombre": "DAVID MAZATZIN TUÑON SALAZAR", "perfil": "VENTAS", "nivel": "", "proyecto": "COMERCIAL", "formador": "WILLIAM ALEJANDRO ALFREDO ULLOA STUARDO", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 25.0, "generacion": "Gen Z", "ingreso": 2026, "baja_anio": null, "mes_baja": null, "salario": 30000, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "2000-06-16 00:00:00"}, {"nombre": "SONIA FERNANDA RIVERA HERNANDEZ", "perfil": "PRODUCT OWNER", "nivel": "", "proyecto": "PROJECT OWNER", "formador": "MARIANA VAZQUEZ ZANELLA", "empleador": "SATORI", "estatus": "Activo", "sexo": "F", "edad": 28.0, "generacion": "Gen Z", "ingreso": 2026, "baja_anio": null, "mes_baja": null, "salario": 58312, "ubicacion": "Ciudad de México", "customerSuccess": "FERNANDA GALLARDO", "area": "OPERACIONES", "cumpleanios": "1998-02-08 00:00:00"}, {"nombre": "LUIS EDUARDO PEREA MEJIA", "perfil": "PRODUCT OWNER", "nivel": "", "proyecto": "PROJECT OWNER", "formador": "MARIANA VAZQUEZ ZANELLA", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 29.0, "generacion": "Millennials", "ingreso": 2026, "baja_anio": null, "mes_baja": null, "salario": 59495, "ubicacion": "Ciudad de México", "customerSuccess": "FERNANDA GALLARDO", "area": "OPERACIONES", "cumpleanios": "1996-04-11 00:00:00"}, {"nombre": "DIANA ANGELICA ROSAS GAMBOA", "perfil": "DOCUMENTADOR", "nivel": "", "proyecto": "DOCUMENTADOR", "formador": "SAMANTA CAMACHO CARRENO", "empleador": "SATORI", "estatus": "Activo", "sexo": "M", "edad": 37.0, "generacion": "Millennials", "ingreso": 2026, "baja_anio": null, "mes_baja": null, "salario": 0, "ubicacion": "Ciudad de México", "customerSuccess": "", "area": "OPERACIONES", "cumpleanios": "1988-05-23 00:00:00"}];
+
+
+// ─────────────────────────────────────────────────────────
+// COLORS
+// ─────────────────────────────────────────────────────────
+const COLORS = {
+  purple: '#8250ff', cyan: '#3de8c8', pink: '#ff5fc8',
+  green: '#5fff8c', orange: '#ff9048', yellow: '#ffe455',
+  blue: '#4db8ff', indigo: '#667eea'
+};
+const PALETTE = ['#8250ff','#3de8c8','#ff5fc8','#5fff8c','#ff9048','#ffe455','#4db8ff','#667eea','#ff6b6b','#a07af0'];
+const chart_default = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'rgba(20,20,40,0.95)', titleColor:'#f0f0ff',
+    bodyColor:'#a0a0c0', borderColor:'rgba(130,80,255,0.3)', borderWidth:1, cornerRadius:8 } }
+};
+
+// ─────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────
+let dirFilter = 'todos', projFilter = 'activos';
+let allCharts = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+  setDates();
+  renderHeroKpis();
+  renderKpiGrid();
+  renderGender();
+  renderGeneraciones();
+  renderEdad();
+  renderEmpleador();
+  renderNivel();
+  renderUbicacion();
+  renderOrgChart();
+  renderFormadorBars();
+  renderProyectos();
+  renderRotacion();
+  renderBajas();
+  renderIngresos();
+  renderSalary();
+  renderTenure();
+  renderPerfiles();
+  renderDirectory();
+  highlightNav();
+});
+
+function setDates() {
+  const d = new Date();
+  const opts = { year:'numeric', month:'long', day:'numeric' };
+  const str = d.toLocaleDateString('es-MX', opts);
+  document.getElementById('heroDate').textContent = '📅 Actualizado: ' + str;
+  document.getElementById('footerDate').textContent = str;
+}
+
+// ─────────────────────────────────────────────────────────
+// HERO KPIs
+// ─────────────────────────────────────────────────────────
+function renderHeroKpis() {
+  const kpis = [
+    { label:'Activos', value: DATA.activos, color:'blue', sub:'Colaboradores activos', icon:'✅' },
+    { label:'Bajas', value: DATA.bajas, color:'pink', sub:'Total histórico', icon:'📉' },
+    { label:'Rotación 2025', value: (DATA.rotacion['2025']/(DATA.activos+DATA.rotacion['2025'])*100).toFixed(1)+'%', color:'orange', sub:'Tasa de rotación', icon:'🔄' },
+    { label:'Antigüedad', value: DATA.antiguedadPromedio.toFixed(1)+'a', color:'purple', sub:'Promedio activos', icon:'⏱' },
+  ];
+  const c = document.getElementById('heroKpis');
+  c.innerHTML = kpis.map(k => `
+    <div class="kpi-card ${k.color}">
+      <div class="kpi-label">${k.icon} ${k.label}</div>
+      <div class="kpi-value ${k.color}">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────────────────
+// KPI GRID
+// ─────────────────────────────────────────────────────────
+function renderKpiGrid() {
+  const rotRate = (DATA.rotacion['2026']/(DATA.activos)*100).toFixed(1);
+  const kpis = [
+    { label:'Total Colaboradores',value:DATA.activos,sub:'Activos 2026',icon:'👥',color:'blue' },
+    { label:'Headcount Histórico',value:DATA.total,sub:'Incluye bajas',icon:'📋',color:'purple' },
+    { label:'Bajas 2026',value:DATA.rotacion['2026'],sub:`${rotRate}% tasa`,icon:'⬇',color:'pink' },
+    { label:'Salario Promedio',value:'$'+Number(DATA.salario.media).toLocaleString('es-MX'),sub:'Activos MXN',icon:'💰',color:'orange' },
+    { label:'Edad Promedio',value:DATA.edadPromedio+'a',sub:'Equipo activo',icon:'🎂',color:'blue' },
+    { label:'Proyectos Activos',value:Object.keys(DATA.proyectosActivos).length,sub:'Proyectos con personal',icon:'📁',color:'purple' },
+    { label:'% Femenino',value:Math.round(DATA.genero.F/(DATA.genero.F+DATA.genero.M)*100)+'%',sub:'Paridad de género',icon:'♀',color:'pink' },
+    { label:'Líderes Activos',value:Object.keys(DATA.hierarchy).length,sub:'Formadores en jerarquía',icon:'🏆',color:'orange' },
+  ];
+  const g = document.getElementById('kpiGrid');
+  g.innerHTML = kpis.map(k => `
+    <div class="kpi-card ${k.color}">
+      <div class="kpi-label">${k.icon} ${k.label}</div>
+      <div class="kpi-value ${k.color}">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────────────────
+// GÉNERO
+// ─────────────────────────────────────────────────────────
+function renderGender() {
+  const { F, M } = DATA.genero;
+  const total = F + M;
+  document.getElementById('totalGender').textContent = total + ' activos';
+  document.getElementById('genderCenter').textContent = total;
+  document.getElementById('genderBarF').style.width = (F/total*100).toFixed(1)+'%';
+  document.getElementById('genderBarM').style.width = (M/total*100).toFixed(1)+'%';
+
+  const ctx = document.getElementById('genderChart').getContext('2d');
+  allCharts.gender = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels:['Mujeres','Hombres'], datasets:[{ data:[F,M],
+      backgroundColor:['rgba(255,95,200,0.85)','rgba(61,232,200,0.85)'],
+      borderColor:['#ff5fc8','#3de8c8'], borderWidth:2, hoverOffset:6 }] },
+    options:{ ...chart_default, cutout:'70%' }
+  });
+
+  const leg = document.getElementById('genderLegend');
+  leg.innerHTML = `
+    <div class="donut-legend-item"><div class="donut-dot" style="background:#ff5fc8"></div>Mujeres: <b>${F}</b> (${(F/total*100).toFixed(0)}%)</div>
+    <div class="donut-legend-item"><div class="donut-dot" style="background:#3de8c8"></div>Hombres: <b>${M}</b> (${(M/total*100).toFixed(0)}%)</div>
+  `;
+}
+
+// ─────────────────────────────────────────────────────────
+// GENERACIONES
+// ─────────────────────────────────────────────────────────
+function renderGeneraciones() {
+  const labels = Object.keys(DATA.generaciones);
+  const values = Object.values(DATA.generaciones);
+  const colors = ['#8250ff','#3de8c8','#ff5fc8','#ffe455'];
+  const ctx = document.getElementById('genChart').getContext('2d');
+  allCharts.gen = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:values, backgroundColor:colors.map(c=>c+'cc'),
+      borderColor:colors, borderWidth:2, hoverOffset:8 }] },
+    options:{ ...chart_default, cutout:'55%',
+      plugins:{ ...chart_default.plugins, legend:{ display:true, position:'bottom',
+        labels:{ color:'#a0a0c0', font:{size:11}, padding:10, boxWidth:10 } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// EDAD
+// ─────────────────────────────────────────────────────────
+function renderEdad() {
+  document.getElementById('avgAgeLabel').textContent = 'Prom: '+DATA.edadPromedio+'a';
+  const labels = Object.keys(DATA.edadBins);
+  const values = Object.values(DATA.edadBins);
+  const ctx = document.getElementById('ageChart').getContext('2d');
+  allCharts.age = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data:values,
+      backgroundColor: labels.map((_,i)=> PALETTE[i % PALETTE.length]+'bb'),
+      borderColor: labels.map((_,i)=> PALETTE[i % PALETTE.length]),
+      borderWidth:2, borderRadius:6 }] },
+    options:{ ...chart_default, scales:{
+      y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      x:{ grid:{ display:false }, ticks:{ color:'#6868a0', font:{size:10} } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// EMPLEADOR
+// ─────────────────────────────────────────────────────────
+function renderEmpleador() {
+  const labels = Object.keys(DATA.empleador);
+  const values = Object.values(DATA.empleador);
+  const colors = ['#8250ff','#3de8c8','#ff5fc8','#ffe455'];
+  const ctx = document.getElementById('empleadorChart').getContext('2d');
+  allCharts.emp = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:values, backgroundColor:colors.map(c=>c+'cc'),
+      borderColor:colors, borderWidth:2, hoverOffset:6 }] },
+    options:{ ...chart_default, cutout:'60%' }
+  });
+  const leg = document.getElementById('empleadorLegend');
+  const total = values.reduce((a,b)=>a+b,0);
+  leg.innerHTML = labels.map((l,i) => `
+    <div class="donut-legend-item">
+      <div class="donut-dot" style="background:${colors[i]}"></div>
+      ${l}: <b>${values[i]}</b> (${(values[i]/total*100).toFixed(0)}%)
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────────────────
+// NIVEL UIX
+// ─────────────────────────────────────────────────────────
+function renderNivel() {
+  const labels = Object.keys(DATA.nivelUiX);
+  const values = Object.values(DATA.nivelUiX);
+  const ctx = document.getElementById('nivelChart').getContext('2d');
+  allCharts.nivel = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{
+      data:values, backgroundColor:'rgba(130,80,255,0.5)', borderColor:'#8250ff',
+      borderWidth:2, borderRadius:6 }] },
+    options:{ ...chart_default, indexAxis:'y', scales:{
+      x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      y:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:10} } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// UBICACIÓN
+// ─────────────────────────────────────────────────────────
+function renderUbicacion() {
+  const entries = Object.entries(DATA.ubicacion).sort((a,b)=>b[1]-a[1]);
+  const total = entries.reduce((s,[,v])=>s+v,0);
+  document.getElementById('ubicCount').textContent = entries.length + ' ciudades';
+  const colors = ['#8250ff','#3de8c8','#ff5fc8','#5fff8c','#ff9048','#ffe455','#4db8ff','#667eea','#ff6b6b','#a07af0'];
+  const c = document.getElementById('ubicList');
+  c.innerHTML = entries.map(([label, val], i) => `
+    <div class="prog-row">
+      <span class="prog-label">${label}</span>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:${(val/total*100).toFixed(0)}%;background:${colors[i%colors.length]}"></div></div>
+      <span class="prog-val" style="color:${colors[i%colors.length]}">${val}</span>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────────────────
+// ORG CHART (SVG D3-style manual)
+// ─────────────────────────────────────────────────────────
+function renderOrgChart() {
+  // Render using plain HTML (responsive)
+  const container = document.getElementById('org-svg').parentElement;
+  container.innerHTML = '';
+  const orgDiv = document.createElement('div');
+  orgDiv.style.cssText = 'padding:1.5rem;overflow-x:auto;min-width:0;';
+
+  function shortName(name) {
+    const parts = name.split(' ');
+    if(parts.length > 2) return parts[0] + ' ' + parts[parts.length-2];
+    return name;
+  }
+
+  function makeBox(name, level) {
+    const direct = DATA.formadorDirect[name] || 0;
+    const total = DATA.teamTotal[name] || direct;
+    const levelColor = ['#8250ff','#3de8c8','#ff5fc8','#5fff8c'];
+    const div = document.createElement('div');
+    div.style.cssText = `display:flex;flex-direction:column;align-items:center;min-width:${level===0?180:140}px;`;
+    div.innerHTML = `
+      <div onclick="selectLeader('${name}')" style="
+        background:${level===0?'rgba(130,80,255,0.2)':level===1?'rgba(61,232,200,0.08)':'rgba(255,95,200,0.08)'};
+        border:1.5px solid ${levelColor[level]||'rgba(255,255,255,0.1)'};
+        border-radius:${level===0?'14px':'10px'};
+        padding:${level===0?'10px 14px':'7px 10px'};
+        text-align:center;cursor:pointer;transition:all .2s;
+        min-width:${level===0?'160px':'120px'};max-width:180px;
+      "
+      onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 16px rgba(130,80,255,0.3)'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="font-size:${level===0?'.8rem':'.7rem'};font-weight:700;color:#f0f0ff;line-height:1.2;">${shortName(name)}</div>
+        <div style="font-size:.65rem;color:${levelColor[level]};margin-top:3px;font-weight:600;">${total > direct ? total+' equipo' : direct+' directos'}</div>
+      </div>`;
+    return div;
+  }
+
+  function makeTree(name, level) {
+    const node = makeBox(name, level);
+    const h = DATA.hierarchy[name];
+    const subs = h && h.subs ? h.subs.filter(s => s && s.trim()) : [];
+    if(subs.length > 0) {
+      const childRow = document.createElement('div');
+      childRow.style.cssText = 'display:flex;gap:8px;margin-top:20px;align-items:flex-start;position:relative;';
+
+      // top line
+      const topLine = document.createElement('div');
+      topLine.style.cssText = 'position:absolute;top:-20px;left:50%;width:1px;height:20px;background:rgba(130,80,255,0.3);';
+      childRow.appendChild(topLine);
+
+      subs.forEach((sub, idx) => {
+        const subNode = makeTree(sub, level+1);
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;position:relative;';
+        const connTop = document.createElement('div');
+        connTop.style.cssText = 'width:1px;height:16px;background:rgba(130,80,255,0.25);';
+        wrapper.appendChild(connTop);
+        wrapper.appendChild(subNode);
+        childRow.appendChild(wrapper);
+      });
+
+      node.appendChild(childRow);
+    }
+    return node;
+  }
+
+  const tree = makeTree('MIGUEL ANGEL FLORES REYES', 0);
+  tree.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;padding:1rem;';
+  orgDiv.appendChild(tree);
+  container.appendChild(orgDiv);
+}
+
+function selectLeader(name) {
+  const detail = document.getElementById('leaderDetail');
+  detail.style.display = 'block';
+  document.getElementById('leaderName').textContent = '👤 ' + name;
+  const direct = DATA.formadorDirect[name] || 0;
+  const total = DATA.teamTotal[name] || direct;
+  document.getElementById('leaderTotalBadge').textContent = total + ' personas en equipo';
+
+  const h = DATA.hierarchy[name];
+  const level = h ? h.level : '—';
+  const levelMap = {0:'Nivel 0 - Dirección',1:'Nivel 1 - Liderazgo',2:'Nivel 2 - Formador'};
+
+  document.getElementById('leaderStats').innerHTML = `
+    <div class="metric-mini"><div class="metric-mini-label">Directos</div><div class="metric-mini-val" style="color:#3de8c8">${direct}</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Equipo Total</div><div class="metric-mini-val" style="color:#8250ff">${total}</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Nivel</div><div class="metric-mini-val" style="font-size:1rem;color:#a07af0">${levelMap[level]||'Formador'}</div></div>
+  `;
+
+  // Show sub-leaders
+  const subs = h && h.subs ? h.subs.filter(Boolean) : [];
+  const teamGrid = document.getElementById('leaderTeamGrid');
+  if(subs.length) {
+    teamGrid.innerHTML = subs.map(sub => {
+      const subDirect = DATA.formadorDirect[sub] || 0;
+      return `<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;">
+        <div style="font-size:.72rem;font-weight:700;color:#f0f0ff;">${sub}</div>
+        <div style="font-size:.65rem;color:#3de8c8;margin-top:3px;">${subDirect} personas a cargo</div>
+      </div>`;
+    }).join('');
+  } else {
+    teamGrid.innerHTML = '<div style="color:var(--text3);font-size:.82rem;">Sin sub-líderes directos</div>';
+  }
+
+  detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ─────────────────────────────────────────────────────────
+// FORMADOR BARS
+// ─────────────────────────────────────────────────────────
+function renderFormadorBars() {
+  const sorted = Object.entries(DATA.formadorDirect).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const labels = sorted.map(([n])=>n.split(' ')[0]+' '+n.split(' ').slice(-1)[0]);
+  const values = sorted.map(([,v])=>v);
+  const ctx = document.getElementById('formadorBarChart').getContext('2d');
+  allCharts.formBar = new Chart(ctx, {
+    type:'bar', data:{ labels, datasets:[{ data:values,
+      backgroundColor: PALETTE.map(c=>c+'bb'), borderColor:PALETTE, borderWidth:2, borderRadius:6 }] },
+    options:{ ...chart_default, indexAxis:'y', scales:{
+      x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      y:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:9} } } } }
+  });
+
+  // Team size chart
+  const sorted2 = Object.entries(DATA.teamTotal).sort((a,b)=>b[1]-a[1]);
+  const labels2 = sorted2.map(([n])=>n.split(' ')[0]+' '+n.split(' ').slice(-1)[0]);
+  const values2 = sorted2.map(([,v])=>v);
+  const ctx2 = document.getElementById('teamSizeChart').getContext('2d');
+  allCharts.teamSize = new Chart(ctx2, {
+    type:'bar', data:{ labels:labels2, datasets:[{ data:values2,
+      backgroundColor:'rgba(61,232,200,0.5)', borderColor:'#3de8c8', borderWidth:2, borderRadius:6 }] },
+    options:{ ...chart_default, indexAxis:'y', scales:{
+      x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      y:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:9} } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// PROYECTOS
+// ─────────────────────────────────────────────────────────
+function renderProyectos() {
+  const data = DATA.proyectosActivos;
+  document.getElementById('proyCount').textContent = Object.keys(data).length + ' proyectos';
+  const sorted = Object.entries(data).sort((a,b)=>b[1]-a[1]);
+  const labels = sorted.map(([k])=>k);
+  const values = sorted.map(([,v])=>v);
+  const ctx = document.getElementById('proyectoChart').getContext('2d');
+  allCharts.proy = new Chart(ctx, {
+    type:'bar', data:{ labels, datasets:[{ data:values,
+      backgroundColor: labels.map((_,i)=>PALETTE[i%PALETTE.length]+'bb'),
+      borderColor: labels.map((_,i)=>PALETTE[i%PALETTE.length]),
+      borderWidth:2, borderRadius:6 }] },
+    options:{ ...chart_default, indexAxis:'y', scales:{
+      x:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      y:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:9} } } } }
+  });
+  fillProjTable('activos');
+}
+
+function fillProjTable(type) {
+  const data = type === 'activos' ? DATA.proyectosActivos : DATA.proyectosBajas;
+  const sorted = Object.entries(data).sort((a,b)=>b[1]-a[1]);
+  const total = sorted.reduce((s,[,v])=>s+v,0);
+  const tbody = document.getElementById('proyectoTbody');
+  tbody.innerHTML = sorted.map(([k,v]) => `
+    <tr>
+      <td>${k}</td>
+      <td><b style="color:#f0f0ff">${v}</b></td>
+      <td><span class="badge badge-purple">${(v/total*100).toFixed(1)}%</span></td>
+    </tr>`).join('');
+}
+
+function switchProjTab(type, el) {
+  projFilter = type;
+  document.querySelectorAll('#proyectos .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  fillProjTable(type);
+}
+
+// ─────────────────────────────────────────────────────────
+// ROTACIÓN
+// ─────────────────────────────────────────────────────────
+function renderRotacion() {
+  const labels = Object.keys(DATA.rotacion);
+  const values = Object.values(DATA.rotacion);
+  const ctx = document.getElementById('rotacionChart').getContext('2d');
+  allCharts.rot = new Chart(ctx, {
+    type:'bar', data:{ labels, datasets:[{
+      data:values, backgroundColor:['rgba(255,95,200,0.4)','rgba(255,95,200,0.6)','rgba(255,95,200,0.3)'],
+      borderColor:['#ff5fc8','#ff5fc8','#ff5fc8'], borderWidth:2, borderRadius:8 }] },
+    options:{ ...chart_default, scales:{
+      y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      x:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:11} } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// BAJAS POR MES
+// ─────────────────────────────────────────────────────────
+function renderBajas() {
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const ctx = document.getElementById('bajasChart').getContext('2d');
+  allCharts.bajas = new Chart(ctx, {
+    type:'line', data:{ labels:meses, datasets:[{
+      data:DATA.bajasMes, borderColor:'#ff9048', backgroundColor:'rgba(255,144,72,0.1)',
+      tension:.4, fill:true, pointBackgroundColor:'#ff9048', pointRadius:4 }] },
+    options:{ ...chart_default, scales:{
+      y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      x:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:10} } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// INGRESOS
+// ─────────────────────────────────────────────────────────
+function renderIngresos() {
+  const labels = Object.keys(DATA.ingresoAnio);
+  const values = Object.values(DATA.ingresoAnio);
+  const ctx = document.getElementById('ingresosChart').getContext('2d');
+  allCharts.ing = new Chart(ctx, {
+    type:'line', data:{ labels, datasets:[{
+      data:values, borderColor:'#5fff8c', backgroundColor:'rgba(95,255,140,0.08)',
+      tension:.4, fill:true, pointBackgroundColor:'#5fff8c', pointRadius:4 }] },
+    options:{ ...chart_default, scales:{
+      y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      x:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:10} } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// SALARY
+// ─────────────────────────────────────────────────────────
+function renderSalary() {
+  const { min, max, media, mediana, p25 } = DATA.salario;
+  document.getElementById('salaryMetrics').innerHTML = `
+    <div class="metric-mini"><div class="metric-mini-label">Promedio</div><div class="metric-mini-val" style="color:#8250ff;font-size:1.2rem">$${Number(media).toLocaleString('es-MX')}</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Mediana</div><div class="metric-mini-val" style="color:#3de8c8;font-size:1.2rem">$${Number(mediana).toLocaleString('es-MX')}</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Rango</div><div class="metric-mini-val" style="color:#ffe455;font-size:.9rem">$${Number(min).toLocaleString()}–$${Number(max).toLocaleString()}</div></div>
+  `;
+
+  const ranges = ['<20k','20-30k','30-40k','40-50k','50-70k','70k+'];
+  const counts = [2, 12, 65, 22, 12, 9];
+  const ctx = document.getElementById('salaryChart').getContext('2d');
+  allCharts.sal = new Chart(ctx, {
+    type:'bar', data:{ labels:ranges, datasets:[{ data:counts,
+      backgroundColor:PALETTE.map(c=>c+'aa'), borderColor:PALETTE, borderWidth:2, borderRadius:6 }] },
+    options:{ ...chart_default, scales:{
+      y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      x:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:10} } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// TENURE
+// ─────────────────────────────────────────────────────────
+function renderTenure() {
+  document.getElementById('tenureMetrics').innerHTML = `
+    <div class="metric-mini"><div class="metric-mini-label">Promedio</div><div class="metric-mini-val" style="color:#5fff8c;font-size:1.3rem">${DATA.antiguedadPromedio.toFixed(1)} años</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Mediana</div><div class="metric-mini-val" style="color:#3de8c8;font-size:1.3rem">0.9 años</div></div>
+  `;
+  const labels = Object.keys(DATA.antiguedadBins);
+  const values = Object.values(DATA.antiguedadBins);
+  const ctx = document.getElementById('tenureChart').getContext('2d');
+  allCharts.ten = new Chart(ctx, {
+    type:'bar', data:{ labels, datasets:[{ data:values,
+      backgroundColor:'rgba(95,255,140,0.4)', borderColor:'#5fff8c', borderWidth:2, borderRadius:6 }] },
+    options:{ ...chart_default, scales:{
+      y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      x:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:10} } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// PERFILES
+// ─────────────────────────────────────────────────────────
+function renderPerfiles() {
+  const sorted = Object.entries(DATA.perfiles).sort((a,b)=>b[1]-a[1]);
+  const labels = sorted.map(([k])=>k);
+  const values = sorted.map(([,v])=>v);
+  const ctx = document.getElementById('perfilChart').getContext('2d');
+  allCharts.perfil = new Chart(ctx, {
+    type:'bar', data:{ labels, datasets:[{ data:values,
+      backgroundColor: labels.map((_,i)=>PALETTE[i%PALETTE.length]+'cc'),
+      borderColor:labels.map((_,i)=>PALETTE[i%PALETTE.length]),
+      borderWidth:2, borderRadius:8 }] },
+    options:{ ...chart_default, scales:{
+      y:{ grid:{ color:'rgba(255,255,255,0.04)' }, ticks:{ color:'#6868a0', font:{size:10} } },
+      x:{ grid:{ display:false }, ticks:{ color:'#a0a0c0', font:{size:10}, maxRotation:30 } } } }
+  });
+}
+
+// ─────────────────────────────────────────────────────────
+// DIRECTORY
+// ─────────────────────────────────────────────────────────
+function renderDirectory() {
+  filterDirectory();
+}
+
+function filterDirectory() {
+  const q = document.getElementById('empSearch').value.toLowerCase();
+  let data = DATA.employees;
+
+  if(dirFilter === 'activos') data = data.filter(e => e.estatus === 'Activo');
+  else if(dirFilter === 'bajas') data = data.filter(e => e.estatus === 'Baja');
+
+  if(q) data = data.filter(e =>
+    e.nombre.toLowerCase().includes(q) ||
+    (e.proyecto||'').toLowerCase().includes(q) ||
+    (e.formador||'').toLowerCase().includes(q) ||
+    (e.perfil||'').toLowerCase().includes(q)
+  );
+
+  document.getElementById('dirCount').textContent = data.length + ' registros';
+  const tbody = document.getElementById('dirTbody');
+  tbody.innerHTML = data.slice(0,100).map(e => `
+    <tr>
+      <td style="font-weight:600;color:#f0f0ff">${e.nombre}</td>
+      <td>${e.perfil || '—'}</td>
+      <td><span class="badge badge-purple">${e.nivel || '—'}</span></td>
+      <td>${e.proyecto || '—'}</td>
+      <td style="font-size:.75rem;color:var(--text3)">${e.formador || '—'}</td>
+      <td><span class="badge badge-blue">${e.empleador || '—'}</span></td>
+      <td><span class="badge ${e.estatus==='Activo'?'badge-green':'badge-red'}">${e.estatus}</span></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1.5rem">Sin resultados</td></tr>';
+}
+
+function switchDirTab(type, el) {
+  dirFilter = type;
+  document.querySelectorAll('#directorio .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  filterDirectory();
+}
+
+// ─────────────────────────────────────────────────────────
+// NAV HIGHLIGHT
+// ─────────────────────────────────────────────────────────
+function highlightNav() {
+  const links = document.querySelectorAll('.nav-links a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+        if(link) link.classList.add('active');
+      }
+    });
+  }, { threshold:0.3 });
+  document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+}
+
+// ─────────────────────────────────────────────────────────
+// UPLOAD / EXCEL PARSING
+// ─────────────────────────────────────────────────────────
+function openUpload() { document.getElementById('uploadPanel').classList.add('open'); }
+function closeUpload() { document.getElementById('uploadPanel').classList.remove('open'); }
+
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
+
+function handleFile(input) { if(input.files[0]) processFile(input.files[0]); }
+
+function processFile(file) {
+  if(!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+    showStatus('err', '⚠ Solo se aceptan archivos .xlsx');
+    return;
+  }
+  showStatus('ok', '⏳ Procesando archivo...');
+  const reader = new FileReader();
+  reader.onload = (e) => {
     try {
-        const response = await fetch(CSV_URL);
-        const text = await response.text();
-        const rows = text.split('\n').map(r => r.split(','));
+      const wb = XLSX.read(e.target.result, { type:'array', cellDates:true });
+      const ws = wb.Sheets['HC'] || wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval:'' });
 
-        // Fila 2 (Datos del Sheets)
-        const hc = rows[1][0];
-        const cobertura = rows[1][1];
-        const antiguedad = rows[1][2];
-        const rotacion = rows[1][3];
-        const hombres = parseInt(rows[1][4]) || 0;
-        const mujeres = parseInt(rows[1][5]) || 0;
+      // Parse employees
+      const employees = rows.map(r => ({
+        nombre: (r['Nombre completo']||'').toString().trim(),
+        perfil: (r['Perfil']||'').toString().trim(),
+        nivel: (r['Nivel UiX']||'').toString().trim(),
+        proyecto: (r['Proyecto o departamento']||'').toString().trim(),
+        formador: (r['Formador']||'').toString().trim(),
+        empleador: (r['Empleador']||'').toString().trim(),
+        estatus: (r['Estatus']||'').toString().trim(),
+        sexo: (r['Sexo']||'').toString().trim(),
+        edad: parseFloat(r['Edad']) || 0,
+        generacion: (r['Generación']||'').toString().trim(),
+        ingreso: r['Año de ingreso'] ? parseInt(r['Año de ingreso']) : null,
+        baja: r['Año de baja'] ? parseInt(r['Año de baja']) : null,
+        mesBaja: r['Mes de baja'] ? parseInt(r['Mes de baja']) : null,
+        salario: parseFloat(r['Salario']) || 0,
+        ubicacion: (r['Ubicación']||'').toString().trim(),
+        customerSuccess: (r['Customer Success']||'').toString().trim(),
+      })).filter(e => e.nombre && e.nombre !== 'Baja');
 
-        // Actualizar Números
-        document.getElementById('header-hc').innerText = hc;
-        document.getElementById('res-hc').innerText = hc;
-        document.getElementById('res-cob').innerText = cobertura + '%';
-        document.getElementById('res-ant').innerText = antiguedad;
-        document.getElementById('res-rot').innerText = rotacion + '%';
+      DATA.employees = employees;
 
-        // Generar Gráfica
-        new Chart(document.getElementById('c-gender'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Hombres', 'Mujeres'],
-                datasets: [{
-                    data: [hombres, mujeres],
-                    backgroundColor: ['#7c5ff5', '#ff4757'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
-            }
-        });
-    } catch (e) { console.error("Error cargando Sheets:", e); }
+      // Recompute all stats
+      const activos = employees.filter(e => e.estatus === 'Activo');
+      const bajas = employees.filter(e => e.estatus === 'Baja');
+
+      DATA.activos = activos.length;
+      DATA.bajas = bajas.length;
+      DATA.total = employees.length;
+
+      // Gender
+      DATA.genero = { F: activos.filter(e=>e.sexo==='F').length, M: activos.filter(e=>e.sexo==='M').length };
+
+      // Generations
+      const genCount = {};
+      activos.forEach(e => { if(e.generacion && e.generacion!=='Baja') genCount[e.generacion]=(genCount[e.generacion]||0)+1; });
+      DATA.generaciones = genCount;
+
+      // Age bins
+      const bins = {'18-25':0,'26-30':0,'31-35':0,'36-40':0,'41-45':0,'46+':0};
+      activos.forEach(e => {
+        const a = e.edad;
+        if(a>=18&&a<=25) bins['18-25']++;
+        else if(a<=30) bins['26-30']++;
+        else if(a<=35) bins['31-35']++;
+        else if(a<=40) bins['36-40']++;
+        else if(a<=45) bins['41-45']++;
+        else if(a>45) bins['46+']++;
+      });
+      DATA.edadBins = bins;
+      const ages = activos.map(e=>e.edad).filter(a=>a>10&&a<80);
+      DATA.edadPromedio = ages.length ? (ages.reduce((s,a)=>s+a,0)/ages.length).toFixed(1) : 0;
+
+      // Empleador
+      const empCount = {};
+      activos.forEach(e => { if(e.empleador&&e.empleador!=='Baja') empCount[e.empleador]=(empCount[e.empleador]||0)+1; });
+      DATA.empleador = empCount;
+
+      // Nivel
+      const nivCount = {};
+      activos.forEach(e => { if(e.nivel&&e.nivel!=='Baja'&&e.nivel!=='') nivCount[e.nivel]=(nivCount[e.nivel]||0)+1; });
+      DATA.nivelUiX = nivCount;
+
+      // Ubicacion
+      const ubicCount = {};
+      activos.forEach(e => { if(e.ubicacion&&e.ubicacion!=='Baja') ubicCount[e.ubicacion]=(ubicCount[e.ubicacion]||0)+1; });
+      DATA.ubicacion = ubicCount;
+
+      // Proyectos
+      const projCount = {};
+      activos.forEach(e => { const p=(e.proyecto||'').trim(); if(p&&p!=='Baja') projCount[p]=(projCount[p]||0)+1; });
+      DATA.proyectosActivos = projCount;
+
+      const projBajas = {};
+      bajas.forEach(e => { const p=(e.proyecto||'').trim(); if(p&&p!=='Baja') projBajas[p]=(projBajas[p]||0)+1; });
+      DATA.proyectosBajas = projBajas;
+
+      // Rotacion
+      const rotCount = {};
+      bajas.forEach(e => { if(e.baja) rotCount[e.baja]=(rotCount[e.baja]||0)+1; });
+      DATA.rotacion = rotCount;
+
+      // Bajas por mes
+      const mCount = Array(12).fill(0);
+      bajas.forEach(e => { if(e.mesBaja&&e.mesBaja>=1&&e.mesBaja<=12) mCount[e.mesBaja-1]++; });
+      DATA.bajasMes = mCount;
+
+      // Ingresos por año
+      const ingCount = {};
+      activos.forEach(e => { if(e.ingreso) ingCount[e.ingreso]=(ingCount[e.ingreso]||0)+1; });
+      DATA.ingresoAnio = ingCount;
+
+      // Salary
+      const sals = activos.map(e=>e.salario).filter(s=>s>1000);
+      sals.sort((a,b)=>a-b);
+      DATA.salario = {
+        min: sals[0]||0, max: sals[sals.length-1]||0,
+        media: sals.length ? Math.round(sals.reduce((s,v)=>s+v,0)/sals.length) : 0,
+        mediana: sals[Math.floor(sals.length/2)]||0, p25: sals[Math.floor(sals.length*0.25)]||0
+      };
+
+      // Perfiles
+      const perfCount = {};
+      activos.forEach(e => { if(e.perfil&&e.perfil!=='Baja') perfCount[e.perfil]=(perfCount[e.perfil]||0)+1; });
+      DATA.perfiles = perfCount;
+
+      // Formador direct count
+      const fCount = {};
+      activos.forEach(e => { if(e.formador&&e.formador!=='Baja') fCount[e.formador]=(fCount[e.formador]||0)+1; });
+      DATA.formadorDirect = fCount;
+
+      // Recalculate team totals using same hierarchy
+      function calcTotal(name) {
+        const d = DATA.formadorDirect[name]||0;
+        const h = DATA.hierarchy[name];
+        const subs = h&&h.subs ? h.subs.filter(Boolean) : [];
+        return d + subs.reduce((s,sub)=>s+calcTotal(sub),0);
+      }
+      const newTeamTotal = {};
+      Object.keys(DATA.hierarchy).forEach(n => { newTeamTotal[n] = calcTotal(n); });
+      DATA.teamTotal = newTeamTotal;
+
+      // Antigüedad
+      const today = new Date(2026,2,13);
+      const tenures = activos.filter(e=>e.ingreso).map(e => {
+        return (today.getFullYear() - e.ingreso) + (today.getMonth()+1)/12;
+      });
+      DATA.antiguedadPromedio = tenures.length ? (tenures.reduce((s,v)=>s+v,0)/tenures.length).toFixed(2) : 0;
+      const tenBins = {'< 1 año':0,'1-2 años':0,'2-3 años':0,'3-5 años':0,'5+ años':0};
+      tenures.forEach(t => {
+        if(t<1) tenBins['< 1 año']++;
+        else if(t<2) tenBins['1-2 años']++;
+        else if(t<3) tenBins['2-3 años']++;
+        else if(t<5) tenBins['3-5 años']++;
+        else tenBins['5+ años']++;
+      });
+      DATA.antiguedadBins = tenBins;
+
+      // Destroy & redraw all charts
+      Object.values(allCharts).forEach(c => c.destroy());
+      allCharts = {};
+
+      renderHeroKpis();
+      renderKpiGrid();
+      renderGender();
+      renderGeneraciones();
+      renderEdad();
+      renderEmpleador();
+      renderNivel();
+      renderUbicacion();
+      renderOrgChart();
+      renderFormadorBars();
+      renderProyectos();
+      renderRotacion();
+      renderBajas();
+      renderIngresos();
+      renderSalary();
+      renderTenure();
+      renderPerfiles();
+      renderDirectory();
+
+      showStatus('ok', '✅ Datos actualizados correctamente con ' + activos.length + ' activos y ' + bajas.length + ' bajas.');
+      setTimeout(closeUpload, 2000);
+    } catch(err) {
+      showStatus('err', '❌ Error al procesar el archivo: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-function switchTab(id, btn) {
-    document.querySelectorAll('.tc').forEach(t => t.classList.remove('on'));
-    document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
-    document.getElementById('tab-' + id).classList.add('on');
-    btn.classList.add('on');
+function showStatus(type, msg) {
+  const el = document.getElementById('statusMsg');
+  el.className = 'status-msg ' + type;
+  el.textContent = msg;
 }
-
-window.onload = loadData;
 </script>
 </body>
 </html>
